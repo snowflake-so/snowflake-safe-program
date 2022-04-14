@@ -1,0 +1,17 @@
+[package]
+name = "snow_util"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2018"
+
+[dependencies]
+anchor-lang = "0.21.0"
+thiserror = "1.0.20"
+
+[dev-dependencies]
+criterion = "0.3"
+chrono = "0.4.19"
+
+[[bench]]
+name = "schedule_benchmark"
+harness = false

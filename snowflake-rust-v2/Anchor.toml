@@ -1,0 +1,6 @@
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+#[programs.localnet]
+#snowflake = "3zFqqFCDaXQjmjihuiqENqCrTeVg4sgzncWmJcJ8qVwp"
