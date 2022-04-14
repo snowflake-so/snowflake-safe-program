@@ -14,8 +14,8 @@ pub enum ProposalStateType {
 }
 
 pub enum FeeSource {
-    FromFeeAccount = 1,
-    FromFlow = 2
+    FromFeeAccount = 0,
+    FromFlow = 1
 }
 
 pub const RECURRING_FOREVER: i16 = -999;

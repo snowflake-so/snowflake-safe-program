@@ -61,6 +61,10 @@ pub (crate) fn parse_cron(schedule: &str)
 
 fn parse_field(field: &str, field_min: u32, field_max: u32)
     -> Result<Vec<u32>, CrontabError> {
+  if field == "*" {
+    return Ok((field_min..=field_max).collect());
+  }
+
   let mut components = BTreeSet::<u32>::new();
   for part in field.split(",") {
     let mut min = field_min;
