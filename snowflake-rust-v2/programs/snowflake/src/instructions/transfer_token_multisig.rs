@@ -8,10 +8,9 @@ use spl_token::instruction;
 #[derive(Accounts)]
 #[instruction(amount: u64)]
 pub struct TransferTokenMultisig<'info> {
-  #[account(mut)]
   pub safe: Account<'info, Safe>,
 
-  #[account(seeds = [
+  #[account(mut, seeds = [
    &[124, 127, 208, 38, 30, 47, 232, 166],
    safe.to_account_info().key.as_ref()
   ], bump = safe.signer_nonce)]
