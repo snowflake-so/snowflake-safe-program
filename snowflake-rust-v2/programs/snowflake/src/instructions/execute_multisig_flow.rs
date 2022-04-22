@@ -14,11 +14,16 @@ pub fn handler<'info>(
  require!(safe.key() == flow.safe, ErrorCode::InvalidSafe);
  require!(execute_by_safe_owner, ErrorCode::InvalidOwner);
  require!(
+  flow.proposal_stage != ProposalStateType::Complete as u8
+   && flow.proposal_stage != ProposalStateType::Failed as u8,
+  ErrorCode::RequestIsExecutedAlready
+ );
+ require!(
   flow.proposal_stage != ProposalStateType::Rejected as u8,
   ErrorCode::RequestIsRejected
  );
  require!(
-  flow.get_approvals() < safe.approvals_required,
+  flow.get_approvals() >= safe.approvals_required,
   ErrorCode::FlowNotEnoughApprovals
  );
  require!(

@@ -6,9 +6,8 @@ use crate::error::ErrorCode;
 use crate::state::{Flow, ProposalStateType, Safe};
 
 #[derive(Accounts)]
-#[instruction(safe_signer_nonce: u8)]
 pub struct ExecuteMultisigFlow<'info> {
-  #[account(mut)]
+  #[account(mut, has_one=safe)]
   pub flow: Account<'info, Flow>,
 
   #[account(mut)]
@@ -19,6 +18,8 @@ pub struct ExecuteMultisigFlow<'info> {
    safe.to_account_info().key.as_ref()
   ], bump = safe.signer_nonce)]
   pub safe_signer: AccountInfo<'info>,
+
+  pub system_program: Program<'info, System>,
 
   pub caller: Signer<'info>,
 }
@@ -54,9 +55,10 @@ pub fn handler<'info>(
       data: action.instruction.clone(),
     };
 
+    let safe_key = safe.key();
     let seeds = &[
       &[124, 127, 208, 38, 30, 47, 232, 166],
-      safe.to_account_info().key.as_ref(),
+      safe_key.as_ref(),
       &[safe.signer_nonce],
     ];
 

@@ -50,6 +50,7 @@ pub fn handler(
   require!(occurrence <= 1, ErrorCode::DuplicateOwnerInSafe);
  }
  require!(creator_exist, ErrorCode::CreatorIsNotAssignedToOwnerList);
+
  safe.owners = owners;
  safe.approvals_required = approvals_required;
 
