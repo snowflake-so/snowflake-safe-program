@@ -19,7 +19,7 @@ pub struct TransferTokenMultisig<'info> {
   #[account(signer)]
   pub owner: AccountInfo<'info>,
 
-  #[account(mut, constraint = &source_ata.owner == &safe.key())]
+  #[account(mut)]
   pub source_ata: Account<'info, TokenAccount>,
 
   #[account(mut)]
