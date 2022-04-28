@@ -4,7 +4,7 @@ use crate::common::charge_fee;
 use crate::error::ErrorCode;
 use crate::instructions::{do_execute_flow, ExecuteFlow};
 
-pub fn handler<'info>(ctx: Context<'_,'_,'_, 'info, ExecuteFlow<'info>>) -> ProgramResult {
+pub fn handler<'info>(ctx: Context<'_,'_,'_, 'info, ExecuteFlow<'info>>) -> Result<()> {
     let pda_bump = *ctx.bumps.get("pda").unwrap();
     charge_fee(&ctx, pda_bump)?;
 

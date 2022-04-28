@@ -18,7 +18,7 @@ pub struct CreateFlow<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateFlow>, account_size: u32, client_flow: Flow) -> ProgramResult {
+pub fn handler(ctx: Context<CreateFlow>, account_size: u32, client_flow: Flow) -> Result<()> {
     let flow = &mut ctx.accounts.flow;
     let owner = &ctx.accounts.requested_by;
     flow.requested_by = ctx.accounts.requested_by.key();

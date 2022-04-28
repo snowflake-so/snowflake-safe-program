@@ -1,8 +1,8 @@
 [package]
 name = "snowflake"
 version = "0.1.0"
-description = "snowflake automation program"
-edition = "2018"
+description = "Created with Anchor"
+edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -11,13 +11,19 @@ name = "snowflake"
 [features]
 no-entrypoint = []
 no-idl = []
+no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
 
+[profile.release]
+overflow-checks = true
+
 [dependencies]
-anchor-lang = "0.21.0"
-anchor-spl = "0.21.0"
+anchor-lang = "0.24.2"
+anchor-spl = "0.24.2"
 spl-token = { version = "3.1.1", features = ["no-entrypoint"] }
-bs58 = "0.3.1"
+bs58 = "0.4.0"
 thiserror = "1.0.20"
 snow_util = { path = "../snow-util", version = "0.1.0" }
+
+

@@ -25,7 +25,7 @@ pub struct ExecuteFlow<'info> {
 
 }
 
-pub fn handler<'info>(ctx: Context<'_,'_,'_, 'info, ExecuteFlow<'info>>, pda_bump : u8) -> ProgramResult {
+pub fn handler<'info>(ctx: Context<'_,'_,'_, 'info, ExecuteFlow<'info>>, pda_bump : u8) -> Result<()> {
     let flow = &ctx.accounts.flow;
     let pda = &ctx.accounts.pda.key();
 

@@ -25,7 +25,7 @@ pub struct Withdraw<'info> {
     token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Withdraw>, amount: u64) -> ProgramResult {
+pub fn handler(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
     let caller = &ctx.accounts.caller;
     let app_id = &ctx.accounts.app_id;
     let pda = &ctx.accounts.pda;

@@ -13,7 +13,7 @@ pub struct InitProgramSettings<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<InitProgramSettings>) -> ProgramResult {
+pub fn handler(ctx: Context<InitProgramSettings>) -> Result<()> {
     let program_settings = &mut ctx.accounts.program_settings;
     program_settings.snf_foundation = ctx.accounts.snf_foundation.key();
     program_settings.operators = Vec::new();

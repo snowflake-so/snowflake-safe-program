@@ -9,22 +9,26 @@ use anchor_lang::solana_program::system_instruction::transfer;
 pub struct TransferNativeMultisig<'info> {
  pub safe: Account<'info, Safe>,
 
+ /// CHECK: sign only
  #[account(mut, seeds = [
    &[124, 127, 208, 38, 30, 47, 232, 166],
    safe.to_account_info().key.as_ref()
   ], bump = safe.signer_nonce)]
  pub safe_signer: AccountInfo<'info>,
 
+ /// CHECK: sign only
  #[account(signer)]
  pub owner: AccountInfo<'info>,
 
+ /// CHECK: receive only
  #[account(mut)]
  pub recipient: AccountInfo<'info>,
 
+ /// CHECK: sign only
  pub system_program: AccountInfo<'info>,
 }
 
-pub fn handler<'info>(ctx: Context<TransferNativeMultisig<'info>>, amount: u64) -> ProgramResult {
+pub fn handler<'info>(ctx: Context<TransferNativeMultisig<'info>>, amount: u64) -> Result<()> {
  let safe = &ctx.accounts.safe;
  let safe_signer = &ctx.accounts.safe_signer;
  let recipient = &ctx.accounts.recipient;

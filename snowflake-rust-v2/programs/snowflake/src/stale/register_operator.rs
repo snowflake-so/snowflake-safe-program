@@ -15,7 +15,7 @@ pub struct RegisterOperator<'info> {
 }
 
 
-pub fn handler(ctx: Context<RegisterOperator>) -> ProgramResult {
+pub fn handler(ctx: Context<RegisterOperator>) -> Result<()> {
     let program_settings = &mut ctx.accounts.program_settings;
     let operator = &ctx.accounts.operator;
 

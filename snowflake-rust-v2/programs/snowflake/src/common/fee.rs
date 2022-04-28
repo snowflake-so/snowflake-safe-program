@@ -1,11 +1,12 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program;
 use anchor_lang::solana_program::program::invoke_signed;
+use anchor_lang::solana_program::sysvar::fees::Fees;
 
 use crate::instructions::ExecuteMultisigFlow;
 use crate::state::FeeSource;
 
-pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>, pda_bump: u8) -> ProgramResult {
+pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>, pda_bump: u8) -> Result<()> {
     let fee = Fees::get().unwrap().fee_calculator.lamports_per_signature;
     let safe_signer = &ctx.accounts.safe_signer;
     let caller = &ctx.accounts.caller;

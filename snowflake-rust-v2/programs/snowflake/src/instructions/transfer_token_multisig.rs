@@ -10,12 +10,14 @@ use spl_token::instruction;
 pub struct TransferTokenMultisig<'info> {
   pub safe: Account<'info, Safe>,
 
+  /// CHECK: sign only
   #[account(mut, seeds = [
    &[124, 127, 208, 38, 30, 47, 232, 166],
    safe.to_account_info().key.as_ref()
   ], bump = safe.signer_nonce)]
   pub safe_signer: AccountInfo<'info>,
 
+  /// CHECK: sign only
   #[account(signer)]
   pub owner: AccountInfo<'info>,
 
@@ -28,7 +30,7 @@ pub struct TransferTokenMultisig<'info> {
   token_program: Program<'info, Token>,
 }
 
-pub fn handler<'info>(ctx: Context<TransferTokenMultisig<'info>>, amount: u64) -> ProgramResult {
+pub fn handler<'info>(ctx: Context<TransferTokenMultisig<'info>>, amount: u64) -> Result<()> {
   let safe = &ctx.accounts.safe;
   let safe_signer = &ctx.accounts.safe_signer;
   let owner = &ctx.accounts.owner;
@@ -37,14 +39,14 @@ pub fn handler<'info>(ctx: Context<TransferTokenMultisig<'info>>, amount: u64) -
 
   require!(safe.is_owner(owner.key), ErrorCode::InvalidOwner);
 
-  let ix_result: Result<Instruction, ProgramError> = instruction::transfer(
+  let ix_result: Result<Instruction> = instruction::transfer(
     ctx.accounts.token_program.key,
     &sender.key(),
     &recipient.key(),
     &safe_signer.key(),
     &[&safe_signer.key()],
     amount,
-  );
+  ).map_err(Into::into);
 
   let ix = ix_result?;
   let seeds = &[

@@ -16,7 +16,7 @@ pub struct WithdrawNative<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<WithdrawNative>, amount: u64) -> ProgramResult {
+pub fn handler(ctx: Context<WithdrawNative>, amount: u64) -> Result<()> {
     let caller = &ctx.accounts.caller;
     let app_id = &ctx.accounts.app_id;
     let pda = &ctx.accounts.pda;

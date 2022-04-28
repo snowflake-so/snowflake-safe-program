@@ -18,7 +18,7 @@ pub struct CreateSafe<'info> {
  pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateSafe>, _safe_path: Vec<u8>, client_safe: Safe) -> ProgramResult {
+pub fn handler(ctx: Context<CreateSafe>, _safe_path: Vec<u8>, client_safe: Safe) -> Result<()> {
  let safe = &mut ctx.accounts.safe;
 
  require!(
