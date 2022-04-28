@@ -9,7 +9,7 @@ use crate::state::{
 #[account]
 #[derive(Debug)]
 pub struct Flow {
-    pub owner: Pubkey,
+    pub requested_by: Pubkey,
     pub safe: Pubkey,
     pub last_updated_date: i64,
     pub created_date: i64,

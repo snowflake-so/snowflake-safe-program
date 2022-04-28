@@ -6,22 +6,22 @@ use crate::state::{Flow, ProposalStateType, Safe};
 #[derive(Accounts)]
 #[instruction(account_size : u32, client_flow: Flow)]
 pub struct CreateFlow<'info> {
-    #[account(init, payer = owner, space = account_size as usize)]
+    #[account(init, payer = requested_by, space = account_size as usize)]
     flow: Account<'info, Flow>,
 
     #[account(mut)]
     safe: Account<'info, Safe>,
 
     #[account(mut)]
-    pub owner: Signer<'info>,
+    pub requested_by: Signer<'info>,
 
     pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<CreateFlow>, account_size: u32, client_flow: Flow) -> ProgramResult {
     let flow = &mut ctx.accounts.flow;
-    let owner = &ctx.accounts.owner;
-    flow.owner = ctx.accounts.owner.key();
+    let owner = &ctx.accounts.requested_by;
+    flow.requested_by = ctx.accounts.requested_by.key();
 
     // TODO Version 2: Create Flow handler
     let safe = &mut ctx.accounts.safe;

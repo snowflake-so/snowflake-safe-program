@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
     use crate::state::static_config::*;
-    use anchor_lang::prelude::*;
     use crate::state::Flow;
+    use anchor_lang::prelude::*;
 
     #[test]
     fn test_update_schedule_for_a_recurring_timed_flow_after_a_successful_run() {
@@ -52,7 +52,6 @@ mod tests {
         assert_eq!(flow.next_execution_time, TIMED_FLOW_ERROR);
         assert_eq!(flow.last_scheduled_execution, now);
         assert_eq!(flow.last_updated_date, now);
-
     }
 
     #[test]
@@ -87,7 +86,7 @@ mod tests {
 
     fn sample_recurring_timed_flow() -> Flow {
         Flow {
-            owner: Pubkey::new_unique(),
+            requested_by: Pubkey::new_unique(),
             last_updated_date: 0,
             created_date: 0,
             trigger_type: TriggerType::Time as u8,
@@ -116,8 +115,7 @@ mod tests {
             signers: vec![],
             safe: Pubkey::new_unique(),
             approvals: vec![],
-            proposal_stage: 0
+            proposal_stage: 0,
         }
     }
-
 }

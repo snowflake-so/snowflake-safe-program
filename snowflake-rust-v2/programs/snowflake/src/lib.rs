@@ -14,10 +14,10 @@ declare_id!("ASUGrAeSB51GrgYbqhXbwxgX1rYmfZ7tDNBzBC2QMBdS");
 pub mod snowflake {
     use super::*;
 
-    pub fn update_flow(ctx: Context<UpdateFlow>, client_flow: Flow) -> ProgramResult {
-        msg!("Snowflake Safe: UpdateFlow");
-        instructions::update_flow::handler(ctx, client_flow)
-    }
+    // pub fn update_flow(ctx: Context<UpdateFlow>, client_flow: Flow) -> ProgramResult {
+    //     msg!("Snowflake Safe: UpdateFlow");
+    //     instructions::update_flow::handler(ctx, client_flow)
+    // }
 
     pub fn transfer_native_multisig(
         ctx: Context<TransferNativeMultisig>,

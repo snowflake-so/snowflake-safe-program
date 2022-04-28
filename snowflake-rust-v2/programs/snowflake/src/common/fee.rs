@@ -28,7 +28,11 @@ pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>, pda_bump: u8) -> ProgramRe
         invoke_signed(
             &ix,
             &[caller.to_account_info(), safe_signer.to_account_info()],
-            &[&[&flow.owner.as_ref(), &flow.app_id.as_ref(), &[pda_bump]]],
+            &[&[
+                &flow.requested_by.as_ref(),
+                &flow.app_id.as_ref(),
+                &[pda_bump],
+            ]],
         )?;
     }
     Ok(())
