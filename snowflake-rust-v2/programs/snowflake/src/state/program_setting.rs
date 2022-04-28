@@ -12,7 +12,6 @@ pub struct ProgramSettings {
 }
 
 impl ProgramSettings {
-
     pub fn is_operator_registered(&self, operator: &Pubkey) -> bool {
         for key in &self.operators {
             if key == operator {

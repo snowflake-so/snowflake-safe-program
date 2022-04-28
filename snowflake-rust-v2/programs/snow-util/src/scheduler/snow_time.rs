@@ -1,4 +1,4 @@
-use super::times::{is_leap_year};
+use super::times::is_leap_year;
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash)]
@@ -58,26 +58,27 @@ impl SnowTime {
             tm_yday: 0,
             tm_isdst: 0,
             tm_utcoff: 0,
-            tm_nsec: 0
+            tm_nsec: 0,
         }
     }
 
-    pub fn get_tm(year: i32,
-                          month: i32,
-                          day: i32,
-                          hour: i32,
-                          minute: i32,
-                          second: i32) -> SnowTime {
-
+    pub fn get_tm(
+        year: i32,
+        month: i32,
+        day: i32,
+        hour: i32,
+        minute: i32,
+        second: i32,
+    ) -> SnowTime {
         SnowTime {
             tm_sec: second,
             tm_min: minute,
             tm_hour: hour,
             tm_mday: day,
-            tm_mon: month.saturating_sub(1), // zero indexed
+            tm_mon: month.saturating_sub(1),    // zero indexed
             tm_year: year.saturating_sub(1900), // Years since 1900
-            tm_wday: 0, // Incorrect, but don't care
-            tm_yday: 0, // Incorrect, but don't care
+            tm_wday: 0,                         // Incorrect, but don't care
+            tm_yday: 0,                         // Incorrect, but don't care
             tm_isdst: 0,
             tm_utcoff: 0,
             tm_nsec: 0,
@@ -88,8 +89,8 @@ impl SnowTime {
         let mut tm = SnowTime::new();
 
         static _YTAB: [[i64; 12]; 2] = [
-            [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ],
-            [ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
+            [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+            [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
         ];
 
         let mut year = 1970;
@@ -102,11 +103,7 @@ impl SnowTime {
         tm.tm_hour = (dayclock / 3600) as i32;
         tm.tm_wday = ((dayno + 4) % 7) as i32;
         loop {
-            let yearsize = if is_leap_year(year) {
-                366
-            } else {
-                365
-            };
+            let yearsize = if is_leap_year(year) { 366 } else { 365 };
             if dayno >= yearsize {
                 dayno -= yearsize;
                 year += 1;
@@ -140,7 +137,10 @@ impl SnowTime {
         let h = tm.tm_hour as i64;
         let mi = tm.tm_min as i64;
         let s = tm.tm_sec as i64;
-        (365*y + y/4 - y/100 + y/400 + 3*(m+1)/5 + 30*m + d - 719561)
-            * 86400 + 3600 * h + 60 * mi + s + utc_offset
+        (365 * y + y / 4 - y / 100 + y / 400 + 3 * (m + 1) / 5 + 30 * m + d - 719561) * 86400
+            + 3600 * h
+            + 60 * mi
+            + s
+            + utc_offset
     }
 }

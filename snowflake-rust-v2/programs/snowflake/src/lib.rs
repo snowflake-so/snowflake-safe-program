@@ -27,10 +27,7 @@ pub mod snowflake {
         instructions::transfer_native_multisig::handler(ctx, amount)
     }
 
-    pub fn transfer_token_multisig(
-        ctx: Context<TransferTokenMultisig>,
-        amount: u64,
-    ) -> Result<()> {
+    pub fn transfer_token_multisig(ctx: Context<TransferTokenMultisig>, amount: u64) -> Result<()> {
         msg!("Snowflake Safe: TransferTokenMultisig");
         instructions::transfer_token_multisig::handler(ctx, amount)
     }

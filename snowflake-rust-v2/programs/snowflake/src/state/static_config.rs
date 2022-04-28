@@ -1,7 +1,7 @@
 pub enum TriggerType {
     None = 1,
     Time = 2,
-    Program = 3
+    Program = 3,
 }
 
 pub enum ProposalStateType {
@@ -15,7 +15,7 @@ pub enum ProposalStateType {
 
 pub enum FeeSource {
     FromFeeAccount = 0,
-    FromFlow = 1
+    FromFlow = 1,
 }
 
 pub const RECURRING_FOREVER: i16 = -999;

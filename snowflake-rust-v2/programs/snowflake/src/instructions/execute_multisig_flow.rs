@@ -3,9 +3,7 @@ use crate::instructions::{do_execute_multisig_flow, ExecuteMultisigFlow};
 use crate::state::static_config::ProposalStateType;
 use anchor_lang::prelude::*;
 
-pub fn handler<'info>(
-    ctx: Context<'_, '_, '_, 'info, ExecuteMultisigFlow<'info>>,
-) -> Result<()> {
+pub fn handler<'info>(ctx: Context<'_, '_, '_, 'info, ExecuteMultisigFlow<'info>>) -> Result<()> {
     let safe = &ctx.accounts.safe;
     let flow = &mut ctx.accounts.flow;
     let caller = &ctx.accounts.caller;

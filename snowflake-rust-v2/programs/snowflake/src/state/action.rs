@@ -9,7 +9,7 @@ pub struct Action {
     pub instruction: Vec<u8>,
     pub program: Pubkey,
     pub accounts: Vec<TargetAccountSpec>,
-    pub extra: String
+    pub extra: String,
 }
 
 impl Action {

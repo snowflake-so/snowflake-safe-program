@@ -17,7 +17,7 @@ mod tests {
 
     #[test]
     fn test_program_settings() {
-        let mut operators:Vec<Pubkey> = Vec::new();
+        let mut operators: Vec<Pubkey> = Vec::new();
 
         let operator0 = Pubkey::from_str("EpmRY1vzTajbur4hkipMi3MbvjbJHKzqEAAqXj12ccZQ").unwrap();
         operators.push(operator0);
@@ -32,20 +32,27 @@ mod tests {
         let checkop0 = can_execute(&operators, &flow1, &operator0);
         let checkop1 = can_execute(&operators, &flow1, &operator1);
         let checkop2 = can_execute(&operators, &flow1, &operator2);
-        println! ("Op 1 - {}, Op 2 - {}, Op 3 - {}", checkop0, checkop1, checkop2);
+        println!(
+            "Op 1 - {}, Op 2 - {}, Op 3 - {}",
+            checkop0, checkop1, checkop2
+        );
 
         let flow2 = Pubkey::from_str("76eTpjuD3EUHthbHKqLzXWFRmDTgEcZYPK4hCWVFJvYk").unwrap();
         let checkop0 = can_execute(&operators, &flow2, &operator0);
         let checkop1 = can_execute(&operators, &flow2, &operator1);
         let checkop2 = can_execute(&operators, &flow2, &operator2);
-        println! ("Op 1 - {}, Op 2 - {}, Op 3 - {}", checkop0, checkop1, checkop2);
+        println!(
+            "Op 1 - {}, Op 2 - {}, Op 3 - {}",
+            checkop0, checkop1, checkop2
+        );
 
         let flow3 = Pubkey::from_str("Bbfi7ztGB6NfaDNiW6ietjpPZr3MgsxeZDrA5mMJKHDZ").unwrap();
         let checkop0 = can_execute(&operators, &flow3, &operator0);
         let checkop1 = can_execute(&operators, &flow3, &operator1);
         let checkop2 = can_execute(&operators, &flow3, &operator2);
-        println! ("Op 1 - {}, Op 2 - {}, Op 3 - {}", checkop0, checkop1, checkop2);
-
+        println!(
+            "Op 1 - {}, Op 2 - {}, Op 3 - {}",
+            checkop0, checkop1, checkop2
+        );
     }
-
 }

@@ -1,5 +1,5 @@
-pub mod schedule;
 pub mod fee;
+pub mod schedule;
 
-pub use schedule::*;
 pub use fee::*;
+pub use schedule::*;
