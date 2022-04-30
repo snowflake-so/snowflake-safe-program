@@ -6,8 +6,6 @@ pub mod do_execute_multisig_flow;
 pub mod execute_multisig_flow;
 pub mod update_flow;
 pub mod update_safe;
-pub mod transfer_native_multisig;
-pub mod transfer_token_multisig;
 
 pub use approve_proposal::*;
 pub use create_flow::*;
@@ -17,5 +15,3 @@ pub use do_execute_multisig_flow::*;
 pub use execute_multisig_flow::*;
 pub use update_flow::*;
 pub use update_safe::*;
-pub use transfer_native_multisig::*;
-pub use transfer_token_multisig::*;
