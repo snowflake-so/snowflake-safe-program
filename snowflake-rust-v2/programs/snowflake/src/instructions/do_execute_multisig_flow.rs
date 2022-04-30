@@ -10,7 +10,7 @@ pub struct ExecuteMultisigFlow<'info> {
   #[account(mut, has_one=safe)]
   pub flow: Account<'info, Flow>,
 
-  #[account(mut)]
+  #[account(mut, constraint = safe.owner_set_seqno == flow.owner_set_seqno)]
   pub safe: Account<'info, Safe>,
 
   #[account(seeds = [
