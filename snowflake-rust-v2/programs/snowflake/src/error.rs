@@ -5,6 +5,12 @@ pub enum ErrorCode {
     #[msg("SnowflakeCron: The job data is invalid.")]
     InvalidJobData,
 
+    #[msg("The job is not due for execution.")]
+    JobIsNotDueForExecution,
+    
+    #[msg("Unable to mark the time triggered job as error because it is still within schedule.")]
+    CannotMarkJobAsErrorIfItsWithinSchedule,
+
     #[msg("SnowflakeCron: User instruction must not reference the node operator.")]
     UserInstructionMustNotReferenceTheNodeOperator,
 

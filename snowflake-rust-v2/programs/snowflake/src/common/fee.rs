@@ -6,7 +6,8 @@ use anchor_lang::solana_program::sysvar::fees::Fees;
 use crate::instructions::ExecuteMultisigFlow;
 use crate::state::FeeSource;
 
-pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>, pda_bump: u8) -> Result<()> {
+pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
+    let pda_bump = *ctx.bumps.get("pda").unwrap();
     let fee = Fees::get().unwrap().fee_calculator.lamports_per_signature;
     let safe_signer = &ctx.accounts.safe_signer;
     let caller = &ctx.accounts.caller;

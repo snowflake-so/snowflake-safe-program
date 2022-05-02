@@ -3,7 +3,7 @@ use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program::program::invoke_signed;
 
 use crate::error::ErrorCode;
-use crate::state::{Flow, ProposalStateType, Safe};
+use crate::state::{Flow, Safe};
 
 #[derive(Accounts)]
 pub struct ExecuteMultisigFlow<'info> {
@@ -25,9 +25,9 @@ pub struct ExecuteMultisigFlow<'info> {
     pub caller: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
+pub fn handler(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
     let safe = &ctx.accounts.safe;
-    let flow = &mut ctx.accounts.flow;
+    let flow = &ctx.accounts.flow;
     let caller = &ctx.accounts.caller;
     let safe_signer = &ctx.accounts.safe_signer.key();
     let execute_by_safe_owner = safe.is_owner(&caller.key());
@@ -63,15 +63,15 @@ pub fn handler(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
 
         let signer = &[&seeds[..]];
 
-        let result = invoke_signed(&ix, ctx.remaining_accounts, signer);
+        invoke_signed(&ix, ctx.remaining_accounts, signer)?;
 
-        if result.is_err() {
-            flow.proposal_stage = ProposalStateType::Failed as u8;
-        }
+        // if result.is_err() {
+        //     flow.proposal_stage = ProposalStateType::Failed as u8;
+        // }
 
-        if result.is_ok() {
-            flow.proposal_stage = ProposalStateType::Complete as u8;
-        }
+        // if result.is_ok() {
+        //     flow.proposal_stage = ProposalStateType::Complete as u8;
+        // }
     }
 
     Ok(())
