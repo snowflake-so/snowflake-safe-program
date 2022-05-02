@@ -10,22 +10,22 @@ pub struct ExecuteMultisigFlow<'info> {
     #[account(mut, has_one=safe)]
     pub flow: Account<'info, Flow>,
 
-    #[account(mut)]
     pub safe: Account<'info, Safe>,
 
     /// CHECK: sign only
-    #[account(seeds = [
-   &[124, 127, 208, 38, 30, 47, 232, 166],
-   safe.to_account_info().key.as_ref()
-  ], bump = safe.signer_nonce)]
+    #[account(
+        seeds = [
+            &[124, 127, 208, 38, 30, 47, 232, 166],
+            safe.to_account_info().key.as_ref()
+        ],
+        bump = safe.signer_nonce
+    )]
     pub safe_signer: AccountInfo<'info>,
-
-    pub system_program: Program<'info, System>,
 
     pub caller: Signer<'info>,
 }
 
-pub fn handler<'info>(ctx: Context<'_, '_, '_, 'info, ExecuteMultisigFlow<'info>>) -> Result<()> {
+pub fn handler(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
     let safe = &ctx.accounts.safe;
     let flow = &mut ctx.accounts.flow;
     let caller = &ctx.accounts.caller;
@@ -73,5 +73,6 @@ pub fn handler<'info>(ctx: Context<'_, '_, '_, 'info, ExecuteMultisigFlow<'info>
             flow.proposal_stage = ProposalStateType::Complete as u8;
         }
     }
+
     Ok(())
 }

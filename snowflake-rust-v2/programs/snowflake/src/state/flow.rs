@@ -40,6 +40,7 @@ pub struct Flow {
     pub signers: Vec<Pubkey>,
     pub approvals: Vec<bool>,
     pub proposal_stage: u8,
+    pub owner_set_seqno: u8,
 }
 
 impl Flow {

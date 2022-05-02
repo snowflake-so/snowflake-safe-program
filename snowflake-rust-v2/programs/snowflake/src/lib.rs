@@ -8,7 +8,7 @@ use anchor_lang::prelude::*;
 use instructions::*;
 use state::*;
 
-declare_id!("4Mvd1iUYv2xfKvs6TSjuABZuQYr6DityYB6nUzjzAozR");
+declare_id!("ASUGrAeSB51GrgYbqhXbwxgX1rYmfZ7tDNBzBC2QMBdS");
 
 #[program]
 pub mod snowflake {
@@ -55,13 +55,12 @@ pub mod snowflake {
         instructions::create_safe::handler(ctx, safe_path, client_safe)
     }
 
-    pub fn update_safe(
-        ctx: Context<UpdateSafe>,
-        owners: Vec<Pubkey>,
-        approvals_required: u8,
-    ) -> Result<()> {
-        msg!("ABC Snowflake Safe: UpdateSafe");
-        instructions::update_safe::handler(ctx, owners, approvals_required)
+    pub fn set_owners(ctx: Context<AuthSafe>, owners: Vec<Pubkey>) -> Result<()> {
+        instructions::set_owners_handler(ctx, owners)
+    }
+
+    pub fn change_threshold(ctx: Context<AuthSafe>, threshold: u8) -> Result<()> {
+        instructions::change_threshold_handler(ctx, threshold)
     }
 
     pub fn approve_proposal(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
@@ -69,9 +68,7 @@ pub mod snowflake {
         instructions::approve_proposal::handler(ctx, is_approved)
     }
 
-    pub fn execute_multisig_flow<'info>(
-        ctx: Context<'_, '_, '_, 'info, ExecuteMultisigFlow<'info>>,
-    ) -> Result<()> {
+    pub fn execute_multisig_flow(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
         msg!("Snowflake Safe: ExecuteMultisigFlow");
         instructions::execute_multisig_flow::handler(ctx)
     }

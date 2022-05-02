@@ -116,6 +116,7 @@ mod tests {
             safe: Pubkey::new_unique(),
             approvals: vec![],
             proposal_stage: 0,
+            owner_set_seqno: 0,
         }
     }
 }

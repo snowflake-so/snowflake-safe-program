@@ -6,10 +6,15 @@ use crate::state::Safe;
 #[derive(Accounts)]
 #[instruction(safe_path: Vec<u8>, client_safe: Safe)]
 pub struct CreateSafe<'info> {
-    #[account(init, seeds = [
-  &[79, 159, 13, 171, 205, 38, 174, 83],
-  &*safe_path
-  ], bump, payer = payer, space = Safe::space())]
+    #[account(
+        init,
+        seeds = [
+            // b"Safe".as_ref(),
+            &[79, 159, 13, 171, 205, 38, 174, 83],
+            &*safe_path
+        ],
+        bump, payer = payer, space = Safe::space()
+    )]
     safe: Account<'info, Safe>,
 
     #[account(mut)]
@@ -56,6 +61,17 @@ pub fn handler(ctx: Context<CreateSafe>, _safe_path: Vec<u8>, client_safe: Safe)
     safe.creator = ctx.accounts.payer.key();
     safe.owners = client_safe.owners;
     safe.approvals_required = client_safe.approvals_required;
+    safe.owner_set_seqno = 0;
 
+    Ok(())
+}
+
+pub fn assert_unique_owners(owners: &[Pubkey]) -> Result<()> {
+    for (i, owner) in owners.iter().enumerate() {
+        require!(
+            !owners.iter().skip(i + 1).any(|item| item == owner),
+            ErrorCode::DuplicateOwnerInSafe
+        )
+    }
     Ok(())
 }

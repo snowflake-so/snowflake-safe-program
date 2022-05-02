@@ -8,6 +8,7 @@ pub struct Safe {
     pub creator: Pubkey,
     pub created_at: i64,
     pub signer_nonce: u8,
+    pub owner_set_seqno: u8,
 }
 
 impl Safe {

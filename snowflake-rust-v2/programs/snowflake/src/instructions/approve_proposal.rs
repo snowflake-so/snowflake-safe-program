@@ -5,9 +5,10 @@ use anchor_lang::prelude::*;
 #[derive(Accounts)]
 #[instruction(is_approved: bool)]
 pub struct ApproveProposal<'info> {
+    #[account(constraint = safe.owner_set_seqno == flow.owner_set_seqno)]
     pub safe: Account<'info, Safe>,
 
-    #[account(mut)]
+    #[account(mut, has_one = safe @ErrorCode::InvalidSafe)]
     pub flow: Account<'info, Flow>,
 
     #[account(mut)]
@@ -24,7 +25,7 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
         safe.is_owner(caller.to_account_info().key),
         ErrorCode::InvalidOwner
     );
-    require!(flow.safe == safe.key(), ErrorCode::InvalidSafe);
+    // require!(flow.safe == safe.key(), ErrorCode::InvalidSafe);
     require!(
         flow.signers.len() < total_owners as usize,
         ErrorCode::ExceedLimitProposalSignatures

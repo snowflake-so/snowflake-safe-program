@@ -1,66 +1,56 @@
-use crate::error::ErrorCode;
-use crate::state::Safe;
 use anchor_lang::prelude::*;
 
+use crate::assert_unique_owners;
+use crate::error::ErrorCode;
+use crate::state::Safe;
+
 #[derive(Accounts)]
-#[instruction(owners: Vec<Pubkey>, approvals_required: u8)]
-pub struct UpdateSafe<'info> {
-    #[account[mut]]
+pub struct AuthSafe<'info> {
+    #[account(mut)]
     pub safe: Account<'info, Safe>,
 
-    #[account(mut)]
-    pub caller: Signer<'info>,
+    #[account(
+        seeds = [
+            // b"SafeSigner",
+            &[124, 127, 208, 38, 30, 47, 232, 166],
+            safe.to_account_info().key.as_ref(),
+        ],
+        bump = safe.signer_nonce
+    )]
+    pub safe_signer: Signer<'info>,
 }
 
-pub fn handler(
-    ctx: Context<UpdateSafe>,
-    owners: Vec<Pubkey>,
-    approvals_required: u8,
-) -> Result<()> {
+pub fn set_owners_handler(ctx: Context<AuthSafe>, owners: Vec<Pubkey>) -> Result<()> {
     let safe = &mut ctx.accounts.safe;
-    let caller = &mut ctx.accounts.caller;
 
-    require!(safe.is_owner(&caller.key()), ErrorCode::InvalidOwner);
-
+    assert_unique_owners(&owners)?;
     require!(owners.len() > 0usize, ErrorCode::InvalidMinOwnerCount);
-
     require!(owners.len() < 64usize, ErrorCode::InvalidMaxOwnerCount);
+
+    if (owners.len() as u8) < safe.approvals_required {
+        safe.approvals_required = owners.len() as u8;
+    }
+
+    safe.owners = owners;
+    safe.owner_set_seqno += 1;
+
+    Ok(())
+}
+
+pub fn change_threshold_handler(ctx: Context<AuthSafe>, approvals_required: u8) -> Result<()> {
+    let safe = &mut ctx.accounts.safe;
 
     require!(
         approvals_required > 0,
         ErrorCode::InvalidMinApprovalsRequired
     );
-
     require!(
-        approvals_required <= owners.len() as u8,
+        approvals_required <= safe.owners.len() as u8,
         ErrorCode::InvalidMaxApprovalsRequired
     );
 
-    msg!("pass checking");
-
-    let mut creator_exist = false;
-    for current_owner in safe.owners.to_vec() {
-        let mut occurrence = 0;
-        for owner in owners.iter() {
-            if owner == &safe.creator {
-                creator_exist = true;
-            }
-            if owner == &current_owner {
-                occurrence += 1;
-            }
-        }
-
-        msg!("occurrence {:?}", occurrence);
-
-        require!(occurrence <= 1, ErrorCode::DuplicateOwnerInSafe);
-    }
-    require!(creator_exist, ErrorCode::CreatorIsNotAssignedToOwnerList);
-    msg!("creator_exist {:?}", creator_exist);
-
-    msg!("pass checking 2");
-
-    safe.owners = owners;
     safe.approvals_required = approvals_required;
+    safe.owner_set_seqno += 1;
 
     Ok(())
 }
