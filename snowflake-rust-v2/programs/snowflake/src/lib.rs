@@ -19,22 +19,6 @@ pub mod snowflake {
     //     instructions::update_flow::handler(ctx, client_flow)
     // }
 
-    pub fn transfer_native_multisig(
-        ctx: Context<TransferNativeMultisig>,
-        amount: u64,
-    ) -> ProgramResult {
-        msg!("Snowflake Safe: TransferNativeMultisig");
-        instructions::transfer_native_multisig::handler(ctx, amount)
-    }
-
-    pub fn transfer_token_multisig(
-        ctx: Context<TransferTokenMultisig>,
-        amount: u64,
-    ) -> ProgramResult {
-        msg!("Snowflake Safe: TransferTokenMultisig");
-        instructions::transfer_token_multisig::handler(ctx, amount)
-    }
-
     pub fn create_flow(
         ctx: Context<CreateFlow>,
         account_size: u32,
