@@ -2,8 +2,8 @@ use anchor_lang::prelude::*;
 
 use crate::common::calculate_next_execution_time;
 use crate::state::{
-    Action, TriggerType, DEFAULT_RETRY_WINDOW, RECURRING_FOREVER, TIMED_FLOW_COMPLETE,
-    TIMED_FLOW_ERROR,
+    Action, ApprovalRecord, TriggerType, DEFAULT_RETRY_WINDOW, RECURRING_FOREVER,
+    TIMED_FLOW_COMPLETE, TIMED_FLOW_ERROR,
 };
 
 #[account]
@@ -36,10 +36,9 @@ pub struct Flow {
     pub name: String,
     pub extra: String,
     pub actions: Vec<Action>,
-    // TODO Version 2: Flow additional fields
-    pub signers: Vec<Pubkey>,
-    pub approvals: Vec<bool>,
+    pub approvals: Vec<ApprovalRecord>,
     pub proposal_stage: u8,
+    pub owner_set_seqno: u8,
 }
 
 impl Flow {
@@ -82,13 +81,10 @@ impl Flow {
         }
     }
 
-    pub fn is_multisig(&self) -> bool {
-        self.signers.len() > 1
-    }
     pub fn get_approvals(&self) -> u8 {
         let mut approvals: u8 = 0;
         for flow_approval in self.approvals.iter() {
-            if *flow_approval {
+            if flow_approval.is_approved {
                 approvals += 1;
             }
         }

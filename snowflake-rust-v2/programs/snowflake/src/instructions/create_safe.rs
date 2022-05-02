@@ -57,6 +57,7 @@ pub fn handler(ctx: Context<CreateSafe>, _safe_path: Vec<u8>, client_safe: Safe)
  safe.creator = ctx.accounts.payer.key();
  safe.owners = client_safe.owners;
  safe.approvals_required = client_safe.approvals_required;
+ safe.owner_set_seqno = 0;
 
  Ok(())
 }
