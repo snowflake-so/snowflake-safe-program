@@ -42,9 +42,14 @@ pub mod snowflake {
         instructions::create_safe::handler(ctx, safe_path, client_safe)
     }
 
-    pub fn set_owners(ctx: Context<AuthSafe>, owners: Vec<Pubkey>) -> Result<()> {
-        msg!("Snowflake Safe: SetSafeOwners");
-        instructions::update_safe::set_owners_handler(ctx, owners)
+    pub fn add_owner(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {
+        msg!("Snowflake Safe: AddSafeOwner");
+        instructions::update_safe::add_owner_handler(ctx, owner)
+    }
+
+    pub fn remove_owner(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {
+        msg!("Snowflake Safe: RemoveSafeOwner");
+        instructions::update_safe::remove_owner_handler(ctx, owner)
     }
 
     pub fn change_threshold(ctx: Context<AuthSafe>, threshold: u8) -> Result<()> {

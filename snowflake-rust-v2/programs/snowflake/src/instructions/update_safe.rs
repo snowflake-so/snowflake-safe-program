@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-use crate::assert_unique_owners;
 use crate::error::ErrorCode;
 use crate::state::Safe;
+use crate::{assert_removed_owner, assert_unique_owners};
 
 #[derive(Accounts)]
 pub struct AuthSafe<'info> {
@@ -20,18 +20,33 @@ pub struct AuthSafe<'info> {
     pub safe_signer: Signer<'info>,
 }
 
-pub fn set_owners_handler(ctx: Context<AuthSafe>, owners: Vec<Pubkey>) -> Result<()> {
+pub fn add_owner_handler(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {
     let safe = &mut ctx.accounts.safe;
+    let mut safe_owners = safe.owners.to_vec();
+    safe_owners.push(owner);
 
-    assert_unique_owners(&owners)?;
-    require!(owners.len() > 0usize, ErrorCode::InvalidMinOwnerCount);
-    require!(owners.len() < 64usize, ErrorCode::InvalidMaxOwnerCount);
+    assert_unique_owners(&safe_owners)?;
+    require!(safe_owners.len() < 64usize, ErrorCode::InvalidMaxOwnerCount);
 
-    if (owners.len() as u8) < safe.approvals_required {
-        safe.approvals_required = owners.len() as u8;
+    safe.owners = safe_owners;
+    safe.owner_set_seqno += 1;
+
+    Ok(())
+}
+
+pub fn remove_owner_handler(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {
+    let safe = &mut ctx.accounts.safe;
+    let mut safe_owners = safe.owners.to_vec();
+    safe_owners.retain(|safe_owner| *safe_owner != owner);
+
+    assert_removed_owner(&safe_owners, &owner)?;
+    require!(safe_owners.len() > 0usize, ErrorCode::InvalidMinOwnerCount);
+
+    if (safe_owners.len() as u8) < safe.approvals_required {
+        safe.approvals_required = safe_owners.len() as u8;
     }
 
-    safe.owners = owners;
+    safe.owners = safe_owners;
     safe.owner_set_seqno += 1;
 
     Ok(())

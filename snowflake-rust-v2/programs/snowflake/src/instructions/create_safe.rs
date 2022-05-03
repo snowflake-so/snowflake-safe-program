@@ -75,3 +75,13 @@ pub fn assert_unique_owners(owners: &[Pubkey]) -> Result<()> {
     }
     Ok(())
 }
+
+pub fn assert_removed_owner(owners: &[Pubkey], asserted_owner: &Pubkey) -> Result<()> {
+    for (i, owner) in owners.iter().enumerate() {
+        require!(
+            owner != asserted_owner,
+            ErrorCode::OwnerIsNotRemoved
+        )
+    }
+    Ok(())
+}
