@@ -23,12 +23,12 @@ pub fn handler(ctx: Context<CreateFlow>, account_size: u32, client_flow: Flow) -
     let owner = &ctx.accounts.requested_by;
     flow.requested_by = ctx.accounts.requested_by.key();
 
-    // TODO Version 2: Create Flow handler
     let safe = &mut ctx.accounts.safe;
     require!(safe.is_owner(&owner.key()), ErrorCode::InvalidOwner);
     flow.safe = safe.key();
-    flow.signers = Vec::new();
+    flow.approvals = Vec::new();
     flow.proposal_stage = ProposalStateType::Pending as u8;
+    flow.owner_set_seqno = safe.owner_set_seqno;
 
     let now = Clock::get()?.unix_timestamp;
     flow.created_date = now;

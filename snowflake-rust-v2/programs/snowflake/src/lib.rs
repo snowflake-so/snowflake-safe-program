@@ -8,7 +8,7 @@ use anchor_lang::prelude::*;
 use instructions::*;
 use state::*;
 
-declare_id!("ASUGrAeSB51GrgYbqhXbwxgX1rYmfZ7tDNBzBC2QMBdS");
+declare_id!("87XDDi6JDzcqa2MtEnoBgan7BmifUhvQB5TQTGRZYuCt");
 
 #[program]
 pub mod snowflake {
@@ -18,19 +18,6 @@ pub mod snowflake {
     //     msg!("Snowflake Safe: UpdateFlow");
     //     instructions::update_flow::handler(ctx, client_flow)
     // }
-
-    pub fn transfer_native_multisig(
-        ctx: Context<TransferNativeMultisig>,
-        amount: u64,
-    ) -> Result<()> {
-        msg!("Snowflake Safe: TransferNativeMultisig");
-        instructions::transfer_native_multisig::handler(ctx, amount)
-    }
-
-    pub fn transfer_token_multisig(ctx: Context<TransferTokenMultisig>, amount: u64) -> Result<()> {
-        msg!("Snowflake Safe: TransferTokenMultisig");
-        instructions::transfer_token_multisig::handler(ctx, amount)
-    }
 
     pub fn create_flow(
         ctx: Context<CreateFlow>,
@@ -56,11 +43,13 @@ pub mod snowflake {
     }
 
     pub fn set_owners(ctx: Context<AuthSafe>, owners: Vec<Pubkey>) -> Result<()> {
-        instructions::set_owners_handler(ctx, owners)
+        msg!("Snowflake Safe: SetSafeOwners");
+        instructions::update_safe::set_owners_handler(ctx, owners)
     }
 
     pub fn change_threshold(ctx: Context<AuthSafe>, threshold: u8) -> Result<()> {
-        instructions::change_threshold_handler(ctx, threshold)
+        msg!("Snowflake Safe: ChangeThreshold");
+        instructions::update_safe::change_threshold_handler(ctx, threshold)
     }
 
     pub fn approve_proposal(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
@@ -74,10 +63,12 @@ pub mod snowflake {
     }
 
     pub fn execute_scheduled_multisig_flow<'info>(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
+        msg!("Snowflake Safe: ExecuteScheduledMultisigFlow");
         instructions::execute_scheduled_multisig_flow::handler(ctx)
     }
 
     pub fn mark_timed_flow_as_error(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
+        msg!("Snowflake Safe: MarkTimeFlowAsError");
         instructions::mark_timed_flow_as_error::handler(ctx)
     }
 }

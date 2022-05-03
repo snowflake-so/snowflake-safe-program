@@ -1,5 +1,5 @@
 use crate::error::ErrorCode;
-use crate::state::{Flow, ProposalStateType, Safe};
+use crate::state::{ApprovalRecord, Flow, ProposalStateType, Safe};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
@@ -25,24 +25,28 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
         safe.is_owner(caller.to_account_info().key),
         ErrorCode::InvalidOwner
     );
-    // require!(flow.safe == safe.key(), ErrorCode::InvalidSafe);
+    require!(flow.safe == safe.key(), ErrorCode::InvalidSafe);
     require!(
-        flow.signers.len() < total_owners as usize,
+        flow.approvals.len() < total_owners as usize,
         ErrorCode::ExceedLimitProposalSignatures
     );
     let mut is_signed_by_caller = false;
-    for signer in flow.signers.iter() {
-        if signer == caller.to_account_info().key {
+    for approval in flow.approvals.iter() {
+        if approval.owner == *caller.to_account_info().key {
             is_signed_by_caller = true;
         }
     }
 
     require!(!is_signed_by_caller, ErrorCode::AddressSignedAlready);
-    flow.approvals.push(is_approved);
-    flow.signers.push(*caller.to_account_info().key);
+    let now = Clock::get()?.unix_timestamp;
+    flow.approvals.push(ApprovalRecord {
+        date: now,
+        is_approved,
+        owner: *caller.to_account_info().key,
+    });
 
     let approvals = flow.get_approvals();
-    if safe.approvals_required - approvals > total_owners - flow.signers.len() as u8 {
+    if safe.approvals_required - approvals > total_owners - flow.approvals.len() as u8 {
         flow.proposal_stage = ProposalStateType::Rejected as u8;
     }
 

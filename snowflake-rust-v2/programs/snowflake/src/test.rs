@@ -112,7 +112,6 @@ mod tests {
             name: "".to_string(),
             extra: "".to_string(),
             actions: vec![],
-            signers: vec![],
             safe: Pubkey::new_unique(),
             approvals: vec![],
             proposal_stage: 0,

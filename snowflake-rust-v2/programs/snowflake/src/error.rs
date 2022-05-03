@@ -2,16 +2,15 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum ErrorCode {
-    #[msg("SnowflakeCron: The job data is invalid.")]
+    #[msg("SnowflakeSafe: The job data is invalid.")]
     InvalidJobData,
 
-    #[msg("The job is not due for execution.")]
+    #[msg("SnowflakeSafe: The job is not due for execution.")]
     JobIsNotDueForExecution,
-    
-    #[msg("Unable to mark the time triggered job as error because it is still within schedule.")]
+    #[msg("SnowflakeSafe: Unable to mark the time triggered job as error because it is still within schedule.")]
     CannotMarkJobAsErrorIfItsWithinSchedule,
 
-    #[msg("SnowflakeCron: User instruction must not reference the node operator.")]
+    #[msg("SnowflakeSafe: User instruction must not reference the node operator.")]
     UserInstructionMustNotReferenceTheNodeOperator,
 
     #[msg("SnowflakeSafe: Creator is not assigned to owner list")]
@@ -53,6 +52,6 @@ pub enum ErrorCode {
     #[msg("SnowflakeSafe: Exceed limit proposal signatures")]
     ExceedLimitProposalSignatures,
 
-    #[msg("Flow not enough approvals")]
+    #[msg("SnowflakeSafe: Flow not enough approvals")]
     FlowNotEnoughApprovals,
 }
