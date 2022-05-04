@@ -39,6 +39,8 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
 
     require!(!is_signed_by_caller, ErrorCode::AddressSignedAlready);
     let now = Clock::get()?.unix_timestamp;
+    require!(now <= flow.expiry_date, ErrorCode::JobIsExpired);
+
     flow.approvals.push(ApprovalRecord {
         date: now,
         is_approved,

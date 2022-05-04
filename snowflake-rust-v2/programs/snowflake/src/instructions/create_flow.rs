@@ -34,7 +34,6 @@ pub fn handler(ctx: Context<CreateFlow>, account_size: u32, client_flow: Flow) -
     flow.created_date = now;
     flow.last_updated_date = now;
     flow.apply_flow_data(client_flow, now);
-    flow.owner_set_seqno = safe.owner_set_seqno;
 
     require!(flow.validate_flow_data(), ErrorCode::InvalidJobData);
     Ok(())

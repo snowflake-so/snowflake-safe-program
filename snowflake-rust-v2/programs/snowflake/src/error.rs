@@ -10,6 +10,9 @@ pub enum ErrorCode {
     #[msg("SnowflakeSafe: The job is not due for execution.")]
     JobIsNotDueForExecution,
 
+    #[msg("SnowflakeSafe: The job is expired.")]
+    JobIsExpired,
+
     // 6002
     #[msg("SnowflakeSafe: Unable to mark the time triggered job as error because it is still within schedule.")]
     CannotMarkJobAsErrorIfItsWithinSchedule,

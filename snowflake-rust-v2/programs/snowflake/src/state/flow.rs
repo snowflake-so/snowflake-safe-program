@@ -2,8 +2,8 @@ use anchor_lang::prelude::*;
 
 use crate::common::calculate_next_execution_time;
 use crate::state::{
-    Action, ApprovalRecord, TriggerType, DEFAULT_RETRY_WINDOW, RECURRING_FOREVER,
-    TIMED_FLOW_COMPLETE, TIMED_FLOW_ERROR,
+    Action, ApprovalRecord, TriggerType, DEFAULT_RETRY_WINDOW, FLOW_EXPIRY_DURATION,
+    RECURRING_FOREVER, TIMED_FLOW_COMPLETE, TIMED_FLOW_ERROR,
 };
 
 #[account]
@@ -58,7 +58,11 @@ impl Flow {
         self.custom_fee = client_flow.custom_fee;
         self.app_id = client_flow.app_id;
         self.schedule_end_date = 0;
-        self.expiry_date = 0;
+        self.expiry_date = if client_flow.expiry_date > now {
+            client_flow.expiry_date
+        } else {
+            now + FLOW_EXPIRY_DURATION
+        };
         self.expire_on_complete = false;
         self.extra = String::from("");
 

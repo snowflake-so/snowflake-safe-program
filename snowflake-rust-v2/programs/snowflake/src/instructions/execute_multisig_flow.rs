@@ -35,9 +35,15 @@ pub fn validate_multisig_flow_before_execute(ctx: &Context<ExecuteMultisigFlow>)
         ErrorCode::FlowNotEnoughApprovals
     );
     require!(
-        flow.proposal_stage == ProposalStateType::Approved as u8,
+        flow.proposal_stage == ProposalStateType::Approved as u8
+            || flow.proposal_stage == ProposalStateType::ExecutionInProgress as u8,
         ErrorCode::RequestIsNotApprovedYet
     );
+
+    if flow.proposal_stage == ProposalStateType::Approved as u8 {
+        let now = Clock::get()?.unix_timestamp;
+        require!(now <= flow.expiry_date, ErrorCode::JobIsExpired);
+    }
 
     Ok(())
 }
