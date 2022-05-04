@@ -18,6 +18,7 @@ pub enum FeeSource {
     FromFlow = 1,
 }
 
+pub const FLOW_EXPIRY_DURATION: i64 = 60 * 24 * 60 * 60;
 pub const RECURRING_FOREVER: i16 = -999;
 pub const DEFAULT_RETRY_WINDOW: u32 = 300;
 
