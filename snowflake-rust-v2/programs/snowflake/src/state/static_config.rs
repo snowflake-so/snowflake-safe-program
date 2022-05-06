@@ -11,6 +11,7 @@ pub enum ProposalStateType {
     ExecutionInProgress = 3,
     Complete = 4,
     Failed = 5,
+    Aborted = 6,
 }
 
 pub enum FeeSource {

@@ -9,8 +9,8 @@ pub struct DeleteFlow<'info> {
         mut,
         has_one = requested_by,
         close = requested_by,
-        constraint = 
-            flow.proposal_stage != ProposalStateType::ExecutionInProgress as u8 
+        constraint =
+            flow.proposal_stage != ProposalStateType::ExecutionInProgress as u8
             && flow.proposal_stage != ProposalStateType::Complete as u8
     )]
     flow: Account<'info, Flow>,
