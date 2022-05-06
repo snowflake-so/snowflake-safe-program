@@ -11,19 +11,23 @@ pub fn handler<'info>(ctx: Context<ExecuteMultisigFlow>, is_successful_run: bool
 
     let now = Clock::get()?.unix_timestamp;
     let flow = &ctx.accounts.flow;
-
-    require!(
-        flow.is_due_for_execute(now),
-        ErrorCode::JobIsNotDueForExecution
-    );
-
     let mut result = Ok(());
+
     if is_successful_run {
+        require!(
+            flow.is_due_for_execute(now),
+            ErrorCode::JobIsNotDueForExecution
+        );
         result = do_execute_multisig_flow::handler(&ctx);
+    } else {
+        require!(
+            flow.is_schedule_expired(now),
+            ErrorCode::CannotMarkJobAsErrorIfItsWithinSchedule
+        );
     }
 
     let flow = &mut ctx.accounts.flow;
-    flow.update_after_schedule_run(now, true);
+    flow.update_after_schedule_run(now, is_successful_run);
     flow.proposal_stage = if flow.has_remaining_runs() {
         ProposalStateType::ExecutionInProgress as u8
     } else {
