@@ -97,7 +97,7 @@ impl Flow {
     }
 
     pub fn validate_flow_data(&self) -> bool {
-        if self.trigger_type != TriggerType::None as u8
+        if self.trigger_type != TriggerType::Manual as u8
             && self.trigger_type != TriggerType::Time as u8
             && self.trigger_type != TriggerType::Program as u8
         {

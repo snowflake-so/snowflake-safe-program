@@ -1,5 +1,5 @@
 pub enum TriggerType {
-    None = 1,
+    Manual = 1,
     Time = 2,
     Program = 3,
 }
