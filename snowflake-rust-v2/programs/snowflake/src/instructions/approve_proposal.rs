@@ -55,6 +55,7 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
     if approvals == safe.approvals_required {
         flow.proposal_stage = ProposalStateType::Approved as u8;
     }
+    flow.last_updated_date = now;
 
     Ok(())
 }

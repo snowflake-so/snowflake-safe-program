@@ -6,6 +6,9 @@ pub enum ErrorCode {
     #[msg("SnowflakeSafe: The job data is invalid.")]
     InvalidJobData,
 
+    #[msg("SnowflakeSafe: Invalid execution type for the job.")]
+    InvalidExecutionType,
+
     // 6001
     #[msg("SnowflakeSafe: The job is not due for execution.")]
     JobIsNotDueForExecution,

@@ -73,11 +73,12 @@ pub mod snowflake {
 
     pub fn execute_scheduled_multisig_flow<'info>(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
         msg!("Snowflake Safe: ExecuteScheduledMultisigFlow");
-        instructions::execute_scheduled_multisig_flow::handler(ctx)
+        instructions::execute_scheduled_multisig_flow::handler(ctx, true)
     }
 
     pub fn mark_timed_flow_as_error(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
         msg!("Snowflake Safe: MarkTimeFlowAsError");
-        instructions::mark_timed_flow_as_error::handler(ctx)
+        instructions::execute_scheduled_multisig_flow::handler(ctx, false)
+        // instructions::mark_timed_flow_as_error::handler(ctx)
     }
 }
