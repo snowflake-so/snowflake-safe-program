@@ -73,6 +73,9 @@ pub enum ErrorCode {
     #[msg("SnowflakeSafe: Request is not approved yet")]
     RequestIsNotApprovedYet,
 
+    #[msg("SnowflakeSafe: Request is not executed yet")]
+    RequestIsNotExecutedYet,
+
     // 6017
     #[msg("SnowflakeSafe: Exceed limit proposal signatures")]
     ExceedLimitProposalSignatures,
