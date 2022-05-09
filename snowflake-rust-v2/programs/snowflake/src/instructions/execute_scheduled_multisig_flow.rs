@@ -2,8 +2,8 @@ use anchor_lang::prelude::*;
 
 use crate::common::charge_fee;
 use crate::error::ErrorCode;
-use crate::instructions::{do_execute_multisig_flow, validate_before_execute, ExecuteMultisigFlow};
-use crate::state::static_config::{ProposalStateType, TriggerType};
+use crate::instructions::{do_execute_multisig_flow, ExecuteMultisigFlow};
+use crate::state::static_config::ProposalStateType;
 
 pub fn handler<'info>(ctx: Context<ExecuteMultisigFlow>, is_successful_run: bool) -> Result<()> {
     validate_scheduled_multisig_flow_before_execute(&ctx)?;
@@ -28,11 +28,9 @@ pub fn handler<'info>(ctx: Context<ExecuteMultisigFlow>, is_successful_run: bool
 
     let flow = &mut ctx.accounts.flow;
     flow.update_after_schedule_run(now, is_successful_run);
-    flow.proposal_stage = if flow.has_remaining_runs() {
-        ProposalStateType::ExecutionInProgress as u8
-    } else {
-        ProposalStateType::Complete as u8
-    };
+    if !flow.has_remaining_runs() {
+        flow.proposal_stage = ProposalStateType::Complete as u8;
+    }
     flow.last_updated_date = now;
 
     result
@@ -44,9 +42,9 @@ pub fn validate_scheduled_multisig_flow_before_execute(
     let flow = &ctx.accounts.flow;
 
     require!(
-        flow.trigger_type != TriggerType::Manual as u8,
-        ErrorCode::InvalidExecutionType
+        flow.proposal_stage == ProposalStateType::ExecutionInProgress as u8,
+        ErrorCode::RequestIsNotExecutedYet
     );
 
-    validate_before_execute(ctx)
+    Ok(())
 }

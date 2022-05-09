@@ -73,8 +73,7 @@ impl Flow {
 
             if self.recurring {
                 if self.has_remaining_runs() {
-                    self.next_execution_time =
-                        calculate_next_execution_time(&self.cron, self.user_utc_offset as i64, now);
+                    self.update_next_execution_time(now);
                 } else {
                     self.next_execution_time = TIMED_FLOW_COMPLETE;
                 }
@@ -142,8 +141,7 @@ impl Flow {
 
         if self.trigger_type == TriggerType::Time as u8 {
             if self.has_remaining_runs() {
-                self.next_execution_time =
-                    calculate_next_execution_time(&self.cron, self.user_utc_offset as i64, now);
+                self.update_next_execution_time(now);
             } else {
                 self.next_execution_time = if is_successful_run {
                     TIMED_FLOW_COMPLETE
@@ -154,5 +152,10 @@ impl Flow {
         }
 
         self.last_updated_date = now;
+    }
+
+    pub fn update_next_execution_time(&mut self, now: i64) {
+        self.next_execution_time =
+            calculate_next_execution_time(&self.cron, self.user_utc_offset as i64, now);
     }
 }

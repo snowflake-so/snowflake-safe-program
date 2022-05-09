@@ -25,7 +25,6 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
         safe.is_owner(caller.to_account_info().key),
         ErrorCode::InvalidOwner
     );
-    require!(flow.safe == safe.key(), ErrorCode::InvalidSafe);
     require!(
         flow.approvals.len() < total_owners as usize,
         ErrorCode::ExceedLimitProposalSignatures
