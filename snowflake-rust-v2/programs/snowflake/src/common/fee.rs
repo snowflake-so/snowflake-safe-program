@@ -7,7 +7,7 @@ use crate::instructions::ExecuteMultisigFlow;
 use crate::state::FeeSource;
 
 pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
-    let pda_bump = *ctx.bumps.get("pda").unwrap();
+    let safe = &ctx.accounts.safe;
     let fee = Fees::get().unwrap().fee_calculator.lamports_per_signature;
     let safe_signer = &ctx.accounts.safe_signer;
     let caller = &ctx.accounts.caller;
@@ -31,9 +31,9 @@ pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
             &ix,
             &[caller.to_account_info(), safe_signer.to_account_info()],
             &[&[
-                &flow.requested_by.as_ref(),
-                &flow.app_id.as_ref(),
-                &[pda_bump],
+                &[124, 127, 208, 38, 30, 47, 232, 166],
+                safe.key().as_ref(),
+                &[safe.signer_nonce]
             ]],
         )?;
     }

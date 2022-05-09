@@ -14,6 +14,7 @@ pub struct ExecuteMultisigFlow<'info> {
 
     /// CHECK: sign only
     #[account(
+        mut, 
         seeds = [
             &[124, 127, 208, 38, 30, 47, 232, 166],
             safe.to_account_info().key.as_ref()
@@ -23,6 +24,8 @@ pub struct ExecuteMultisigFlow<'info> {
     pub safe_signer: AccountInfo<'info>,
 
     pub caller: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
