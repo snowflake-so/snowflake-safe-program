@@ -32,7 +32,7 @@ pub mod snowflake {
         msg!("Snowflake Safe: DeleteFlow");
         Ok(())
     }
-    
+
     pub fn abort_flow(ctx: Context<AbortFlow>) -> Result<()> {
         instructions::abort_flow::handler(ctx)
     }

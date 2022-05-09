@@ -7,7 +7,7 @@ use crate::state::{Flow, Safe};
 
 #[derive(Accounts)]
 pub struct ExecuteMultisigFlow<'info> {
-    #[account(mut, has_one=safe)]
+    #[account(mut, has_one=safe @ErrorCode::InvalidSafe)]
     pub flow: Account<'info, Flow>,
 
     pub safe: Account<'info, Safe>,
