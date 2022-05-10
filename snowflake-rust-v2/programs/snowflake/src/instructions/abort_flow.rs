@@ -5,7 +5,7 @@ use crate::state::{Flow, ProposalStateType, Safe};
 
 #[derive(Accounts)]
 pub struct AbortFlow<'info> {
-    #[account(has_one = safe @ErrorCode::InvalidSafe)]
+    #[account(mut, has_one = safe @ErrorCode::InvalidSafe)]
     flow: Account<'info, Flow>,
 
     safe: Account<'info, Safe>,
