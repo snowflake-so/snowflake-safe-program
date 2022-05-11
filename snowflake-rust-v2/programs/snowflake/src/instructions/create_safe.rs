@@ -46,9 +46,11 @@ pub fn handler(ctx: Context<CreateSafe>, _safe_path: Vec<u8>, client_safe: Safe)
         ErrorCode::InvalidMaxApprovalsRequired
     );
 
+    assert_unique_owners(&client_safe.owners)?;
+
     let mut creator_exist = false;
     for owner in client_safe.owners.iter() {
-        if owner == &client_safe.creator {
+        if *owner == ctx.accounts.payer.key() {
             creator_exist = true;
         }
     }
