@@ -1,6 +1,11 @@
 import * as anchor from '@project-serum/anchor';
 import { Program, BN } from '@project-serum/anchor';
-import { Keypair, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import {
+  Keypair,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
+  SYSVAR_CLOCK_PUBKEY,
+} from '@solana/web3.js';
 import { assert } from 'chai';
 import {
   Job,
@@ -122,6 +127,13 @@ const createSampleFlowWithJob = async (
   );
 
   return { flowData, executeData, flowKeypair: keypair };
+};
+
+const getClusterUnixTimestamp = async () => {
+  const accountInfo = await anchorProvider.connection.getParsedAccountInfo(
+    SYSVAR_CLOCK_PUBKEY
+  );
+  return (accountInfo.value.data as any).parsed.info.unixTimestamp;
 };
 
 describe('Snowflake', () => {
@@ -790,17 +802,19 @@ describe('Flow', () => {
       }
     });
 
-    it('TODO: Flow has not expired - not stable with small delay')
     it('Flow has not expired', async () => {
       const job = await createAddOwnerJob(
         safeData.ctx.accounts.safe,
         ownerB.publicKey
       );
+
+      const now = await getClusterUnixTimestamp();
+      const delaySeconds = 2;
       const sampleFlow = await createSampleFlowWithJob(
         Keypair.generate(),
         safeData.ctx.accounts.safe,
         job,
-        new BN(Math.floor((Date.now() + 300) / 1000))
+        new BN(now + delaySeconds)
       );
 
       try {
@@ -810,7 +824,7 @@ describe('Flow', () => {
           sampleFlow.flowKeypair.publicKey,
           true
         );
-        await delay(3000);
+        await delay(delaySeconds * 1000 + 300);
         await program.methods
           .approveProposal(approveData.isApproved)
           .accounts(approveData.ctx.accounts)
@@ -1117,14 +1131,14 @@ describe('Flow', () => {
       }
     });
 
-    it('TODO: Flow has not expired for execution - not stable with small delay')
     it('Flow has not expired for execution', async () => {
-      const expiryDate = new BN(Math.floor((Date.now() + 300) / 1000));
+      const now = await getClusterUnixTimestamp();
+      const delaySeconds = 2;
       const addOwnerFlow = await createSampleFlowWithJob(
         anchor.web3.Keypair.generate(),
         safeData.ctx.accounts.safe,
         await createAddOwnerJob(safeData.ctx.accounts.safe, ownerD.publicKey),
-        expiryDate
+        new BN(now + delaySeconds)
       );
 
       const approveData = safeService.approveProposal(
@@ -1139,7 +1153,7 @@ describe('Flow', () => {
         .rpc();
 
       try {
-        await delay(3000);
+        await delay(delaySeconds * 1000 + 300);
         await program.methods
           .executeMultisigFlow()
           .accounts(addOwnerFlow.executeData.ctx.accounts)
