@@ -35,10 +35,10 @@ pub struct Flow {
     pub cron: String,
     pub name: String,
     pub extra: String,
-    pub actions: Vec<Action>,
-    pub approvals: Vec<ApprovalRecord>,
     pub proposal_stage: u8,
     pub owner_set_seqno: u8,
+    pub actions: Vec<Action>,
+    pub approvals: Vec<ApprovalRecord>,
 }
 
 impl Flow {
