@@ -6,13 +6,13 @@ use anchor_lang::prelude::*;
 #[instruction(is_approved: bool)]
 pub struct ApproveProposal<'info> {
     #[account(constraint = safe.owner_set_seqno == flow.owner_set_seqno)]
-    pub safe: Account<'info, Safe>,
+    safe: Account<'info, Safe>,
 
     #[account(mut, has_one = safe @ErrorCode::InvalidSafe)]
-    pub flow: Account<'info, Flow>,
+    flow: Account<'info, Flow>,
 
     #[account(mut)]
-    pub caller: Signer<'info>,
+    caller: Signer<'info>,
 }
 
 pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {

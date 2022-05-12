@@ -38,13 +38,9 @@ pub mod snowflake {
         instructions::abort_flow::handler(ctx)
     }
 
-    pub fn create_safe(
-        ctx: Context<CreateSafe>,
-        safe_path: Vec<u8>,
-        client_safe: Safe,
-    ) -> Result<()> {
+    pub fn create_safe(ctx: Context<CreateSafe>, client_safe: Safe) -> Result<()> {
         msg!("Snowflake Safe: CreateSafe");
-        instructions::create_safe::handler(ctx, safe_path, client_safe)
+        instructions::create_safe::handler(ctx, client_safe)
     }
 
     pub fn add_owner(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {

@@ -15,5 +15,5 @@ pub struct DeleteFlow<'info> {
     )]
     flow: Account<'info, Flow>,
 
-    pub requested_by: Signer<'info>,
+    requested_by: Signer<'info>,
 }

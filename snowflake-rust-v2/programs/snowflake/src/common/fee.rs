@@ -27,14 +27,17 @@ pub fn charge_fee(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
             .unwrap();
     } else {
         let ix = solana_program::system_instruction::transfer(&safe_signer.key, &caller.key, fee);
+        let safe_key = safe.key();
+        let seeds = &[
+            b"SafeSigner".as_ref(),
+            safe_key.as_ref(),
+            &[safe.signer_nonce],
+        ];
+        let signer = &[&seeds[..]];
         invoke_signed(
             &ix,
             &[caller.to_account_info(), safe_signer.to_account_info()],
-            &[&[
-                &[124, 127, 208, 38, 30, 47, 232, 166],
-                safe.key().as_ref(),
-                &[safe.signer_nonce]
-            ]],
+            signer,
         )?;
     }
     Ok(())

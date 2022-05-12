@@ -42,30 +42,18 @@ const createSampleSafe = async (
   owners: anchor.web3.PublicKey[],
   threshold: number
 ) => {
-  let safeData: {
-    safePath: Buffer;
-    safe: ClientSafeParams;
-    ctx: {
-      accounts: {
-        payer: anchor.web3.PublicKey;
-        safe: anchor.web3.PublicKey;
-        systemProgram: anchor.web3.PublicKey;
-      };
-      signers: any[];
-    };
-  };
-
-  safeData = await safeService.createSafe(
+  const safeData = await safeService.createSafe(
     anchorProvider.wallet.publicKey,
-    (Math.random() + 1).toString(36).substring(7),
     owners,
     threshold
   );
 
   await program.methods
-    .createSafe(safeData.safePath, safeData.safe)
+    .createSafe(safeData.safe)
     .accounts(safeData.ctx.accounts)
+    .signers([safeData.safeKeypair])
     .rpc();
+
   return safeData;
 };
 
@@ -95,9 +83,8 @@ const createSampleFlowWithJob = async (
   job: Job,
   expiryDate?: BN
 ) => {
-  const [safeSignerAddress] = await SafeService.findSafeSignerAddress(
-    safeAddress,
-    program.programId
+  const [safeSignerAddress] = await safeService.findSafeSignerAddress(
+    safeAddress
   );
 
   const flowData = safeService.createFlow(
@@ -143,18 +130,7 @@ describe('Snowflake', () => {
       ownerB.publicKey,
       ownerC.publicKey,
     ];
-    const { safePath, safe, ctx } = await safeService.createSafe(
-      anchorProvider.wallet.publicKey,
-      'test-1',
-      owners,
-      2
-    );
-
-    await program.methods
-      .createSafe(safePath, safe)
-      .accounts(ctx.accounts)
-      .rpc();
-
+    const { safe, ctx } = await createSampleSafe(owners, 2);
     let safeAccount = await program.account.safe.fetch(ctx.accounts.safe);
 
     assert.strictEqual(safeAccount.signerNonce, safe.signerNonce);
@@ -167,9 +143,8 @@ describe('Snowflake', () => {
       ctx.accounts.safe,
       ownerD.publicKey
     );
-    const [safeSignerAddress] = await SafeService.findSafeSignerAddress(
-      ctx.accounts.safe,
-      program.programId
+    const [safeSignerAddress] = await safeService.findSafeSignerAddress(
+      ctx.accounts.safe
     );
     const job = new JobBuilder()
       .jobName('Add new owner')
@@ -279,22 +254,24 @@ describe('Snowflake', () => {
 
 describe('Safe', () => {
   describe('Create Safe', () => {
+    it('Can create a safe', async () => {
+      const owners = [anchorProvider.wallet.publicKey, ownerB.publicKey];
+
+      const { safeKeypair } = await createSampleSafe(owners, 1);
+      const safeAccount = await program.account.safe.fetch(
+        safeKeypair.publicKey
+      );
+
+      assert.deepEqual(safeAccount.owners, owners);
+      assert.strictEqual(safeAccount.approvalsRequired, 1);
+      assert.strictEqual(safeAccount.ownerSetSeqno, 0);
+    });
+
     it('Invalid creator', async () => {
       const owners = [ownerB.publicKey, ownerC.publicKey];
 
       try {
-        const { safePath, safe, ctx } = await safeService.createSafe(
-          anchorProvider.wallet.publicKey,
-          'test-2',
-          owners,
-          1
-        );
-
-        await program.methods
-          .createSafe(safePath, safe)
-          .accounts(ctx.accounts)
-          .rpc();
-
+        await createSampleSafe(owners, 1);
         assert.fail();
       } catch (error) {
         assert.strictEqual(
@@ -311,18 +288,7 @@ describe('Safe', () => {
       ];
 
       try {
-        const { safePath, safe, ctx } = await safeService.createSafe(
-          anchorProvider.wallet.publicKey,
-          'test-2',
-          owners,
-          2
-        );
-
-        await program.methods
-          .createSafe(safePath, safe)
-          .accounts(ctx.accounts)
-          .rpc();
-
+        await createSampleSafe(owners, 1);
         assert.fail();
       } catch (error) {
         assert.strictEqual(error.error.errorCode.code, 'DuplicateOwnerInSafe');
@@ -332,18 +298,7 @@ describe('Safe', () => {
     it('Owners, approvals sizes', async () => {
       try {
         const owners = [];
-        const { safePath, safe, ctx } = await safeService.createSafe(
-          anchorProvider.wallet.publicKey,
-          'test-2',
-          owners,
-          2
-        );
-
-        await program.methods
-          .createSafe(safePath, safe)
-          .accounts(ctx.accounts)
-          .rpc();
-
+        await createSampleSafe(owners, 2);
         assert.fail();
       } catch (error) {
         assert.strictEqual(error.error.errorCode.code, 'InvalidMinOwnerCount');
@@ -351,18 +306,7 @@ describe('Safe', () => {
 
       try {
         const owners = [anchorProvider.wallet.publicKey];
-        const { safePath, safe, ctx } = await safeService.createSafe(
-          anchorProvider.wallet.publicKey,
-          'test-2',
-          owners,
-          0
-        );
-
-        await program.methods
-          .createSafe(safePath, safe)
-          .accounts(ctx.accounts)
-          .rpc();
-
+        await createSampleSafe(owners, 0);
         assert.fail();
       } catch (error) {
         assert.strictEqual(
@@ -373,18 +317,7 @@ describe('Safe', () => {
 
       try {
         const owners = [anchorProvider.wallet.publicKey];
-        const { safePath, safe, ctx } = await safeService.createSafe(
-          anchorProvider.wallet.publicKey,
-          'test-2',
-          owners,
-          2
-        );
-
-        await program.methods
-          .createSafe(safePath, safe)
-          .accounts(ctx.accounts)
-          .rpc();
-
+        await createSampleSafe(owners, 2);
         assert.fail();
       } catch (error) {
         assert.strictEqual(
@@ -690,7 +623,6 @@ describe('Safe', () => {
 describe('Flow', () => {
   const owners = [anchorProvider.wallet.publicKey, ownerB.publicKey];
   let safeData: {
-    safePath: Buffer;
     safe: ClientSafeParams;
     ctx: {
       accounts: {
@@ -700,20 +632,11 @@ describe('Flow', () => {
       };
       signers: any[];
     };
+    safeKeypair: anchor.web3.Keypair;
   };
 
   before(async () => {
-    safeData = await safeService.createSafe(
-      anchorProvider.wallet.publicKey,
-      (Math.random() + 1).toString(36).substring(7),
-      owners,
-      1
-    );
-
-    await program.methods
-      .createSafe(safeData.safePath, safeData.safe)
-      .accounts(safeData.ctx.accounts)
-      .rpc();
+    safeData = await createSampleSafe(owners, 1);
   });
 
   describe('Approve Flow', () => {
@@ -809,7 +732,7 @@ describe('Flow', () => {
       );
 
       const now = await getClusterUnixTimestamp();
-      const delaySeconds = 2;
+      const delaySeconds = 3;
       const sampleFlow = await createSampleFlowWithJob(
         Keypair.generate(),
         safeData.ctx.accounts.safe,
@@ -824,7 +747,7 @@ describe('Flow', () => {
           sampleFlow.flowKeypair.publicKey,
           true
         );
-        await delay(delaySeconds * 1000 + 300);
+        await delay(delaySeconds * 1000 + 1000);
         await program.methods
           .approveProposal(approveData.isApproved)
           .accounts(approveData.ctx.accounts)
@@ -1133,7 +1056,7 @@ describe('Flow', () => {
 
     it('Flow has not expired for execution', async () => {
       const now = await getClusterUnixTimestamp();
-      const delaySeconds = 2;
+      const delaySeconds = 3;
       const addOwnerFlow = await createSampleFlowWithJob(
         anchor.web3.Keypair.generate(),
         safeData.ctx.accounts.safe,
@@ -1153,7 +1076,7 @@ describe('Flow', () => {
         .rpc();
 
       try {
-        await delay(delaySeconds * 1000 + 300);
+        await delay(delaySeconds * 1000 + 1000);
         await program.methods
           .executeMultisigFlow()
           .accounts(addOwnerFlow.executeData.ctx.accounts)

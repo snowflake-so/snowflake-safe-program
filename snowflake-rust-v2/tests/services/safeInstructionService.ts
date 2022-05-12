@@ -13,11 +13,12 @@ import { Flow, TriggerType } from '../models/flow';
 import { Snowflake } from '../../target/types/snowflake';
 
 export type ClientSafeParams = {
-  owners: PublicKey[];
   approvalsRequired: number;
   creator: PublicKey;
   createdAt: BN;
   signerNonce: number;
+  extra: String;
+  owners: PublicKey[];
 };
 
 export default class SafeInstructionService {
@@ -40,11 +41,12 @@ export default class SafeInstructionService {
       signers: [],
     };
     let safe: ClientSafeParams = {
-      owners: safeOwners.map<PublicKey>((owner) => owner),
       approvalsRequired: approvalsRequired,
       creator: payerAddress,
       createdAt: new BN(0),
       signerNonce: safeSignerNonce,
+      extra: '',
+      owners: safeOwners.map<PublicKey>((owner) => owner),
     };
     const createSafeIx = await program.instruction.createSafe(
       safePath,
@@ -56,27 +58,26 @@ export default class SafeInstructionService {
 
   static createSafeIxBase(
     payerAddress: PublicKey,
-    safePath: Buffer,
     safeAddress: PublicKey,
     safeSignerNonce: number,
     safeOwners: PublicKey[],
-    approvalsRequired: number,
-    systemProgram: PublicKey
+    approvalsRequired: number
   ) {
     let ctx = {
       accounts: {
         payer: payerAddress,
         safe: safeAddress,
-        systemProgram,
+        systemProgram: SystemProgram.programId,
       },
       signers: [],
     };
     let safe: ClientSafeParams = {
-      owners: safeOwners.map<PublicKey>((owner) => owner),
       approvalsRequired: approvalsRequired,
       creator: payerAddress,
       createdAt: new BN(0),
       signerNonce: safeSignerNonce,
+      extra: '',
+      owners: safeOwners.map<PublicKey>((owner) => owner),
     };
 
     return { safe, ctx };

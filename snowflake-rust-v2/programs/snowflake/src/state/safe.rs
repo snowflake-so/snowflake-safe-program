@@ -3,27 +3,29 @@ use anchor_lang::prelude::*;
 #[account]
 #[derive(Default, Debug)]
 pub struct Safe {
-    pub owners: Vec<Pubkey>,
     pub approvals_required: u8,
     pub creator: Pubkey,
     pub created_at: i64,
     pub signer_nonce: u8,
     pub owner_set_seqno: u8,
+    pub extra: String,
+    pub owners: Vec<Pubkey>,
 }
 
 impl Safe {
-    pub fn space() -> usize {
-        3000
+    pub const MAX_OWNERS: u8 = 64;
+
+    pub fn space(max_owners: u8) -> usize {
+        8 // Anchor account discriminator
+        + std::mem::size_of::<Safe>()
+        + 4 // Vec discriminator
+        + std::mem::size_of::<Pubkey>() * (max_owners as usize)
     }
 
     pub fn is_owner(&self, caller: &Pubkey) -> bool {
-        let mut is_owner = false;
-        for owner in self.owners.iter() {
-            if owner == caller {
-                is_owner = true;
-            }
-        }
-
-        is_owner
+        self.owners
+            .iter()
+            .position(|pubkey| pubkey == caller)
+            .is_some()
     }
 }

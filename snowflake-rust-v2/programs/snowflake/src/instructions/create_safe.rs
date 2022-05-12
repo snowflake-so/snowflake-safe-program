@@ -4,26 +4,18 @@ use crate::error::ErrorCode;
 use crate::state::Safe;
 
 #[derive(Accounts)]
-#[instruction(safe_path: Vec<u8>, client_safe: Safe)]
+#[instruction(client_safe: Safe)]
 pub struct CreateSafe<'info> {
-    #[account(
-        init,
-        seeds = [
-            // b"Safe".as_ref(),
-            &[79, 159, 13, 171, 205, 38, 174, 83],
-            &*safe_path
-        ],
-        bump, payer = payer, space = Safe::space()
-    )]
+    #[account(init, payer = payer, space = Safe::space(Safe::MAX_OWNERS))]
     safe: Account<'info, Safe>,
 
     #[account(mut)]
-    pub payer: Signer<'info>,
+    payer: Signer<'info>,
 
-    pub system_program: Program<'info, System>,
+    system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateSafe>, _safe_path: Vec<u8>, client_safe: Safe) -> Result<()> {
+pub fn handler(ctx: Context<CreateSafe>, client_safe: Safe) -> Result<()> {
     let safe = &mut ctx.accounts.safe;
 
     require!(
@@ -64,6 +56,7 @@ pub fn handler(ctx: Context<CreateSafe>, _safe_path: Vec<u8>, client_safe: Safe)
     safe.owners = client_safe.owners;
     safe.approvals_required = client_safe.approvals_required;
     safe.owner_set_seqno = 0;
+    safe.extra = client_safe.extra;
 
     Ok(())
 }

@@ -6,7 +6,7 @@
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
         "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
         "test": "anchor test --skip-lint",
-        "test:detach": "anchor test --detach --skip-lint --skip-build"
+        "test:detach": "anchor test --skip-lint --skip-build --skip-deploy --skip-local-validator"
     },
     "devDependencies": {
         "@project-serum/anchor": "^0.24.2",

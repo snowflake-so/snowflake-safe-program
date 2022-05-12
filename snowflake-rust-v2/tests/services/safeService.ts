@@ -1,20 +1,17 @@
-import { Program, ProgramAccount } from '@project-serum/anchor';
+import { Program, ProgramAccount, utils } from '@project-serum/anchor';
 import {
   GetProgramAccountsFilter,
   Keypair,
   PublicKey,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { Job, SerializableJob } from '@snowflake-so/snowflake-sdk';
 import BufferLayout from 'buffer-layout';
 import BN from 'bn.js';
 import { Snowflake } from '../../target/types/snowflake';
 
 import { Flow } from '../models/flow';
-import { HashService } from './hashService';
 import SafeInstructionService from './safeInstructionService';
 import { programIds } from '../utils/ids';
-import { SafeType } from '../models/safe';
 
 export const FLOW_ACCOUNT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(8, 'discriminator'),
@@ -24,52 +21,34 @@ export const FLOW_ACCOUNT_LAYOUT = BufferLayout.struct([
 
 export const DEFAULT_FLOW_SIZE = 1800;
 
-export type ClientSafeParams = {
-  owners: PublicKey[];
-  approvalsRequired: number;
-  creator: PublicKey;
-  createdAt: BN;
-  signerNonce: number;
-};
-
 export default class SafeService {
   constructor(readonly program: Program<Snowflake>) {}
   async createSafe(
     payer: PublicKey,
-    safeName: string,
     owners: PublicKey[],
     approvalsRequired: number
   ) {
-    const safePath = await SafeService.findSafeDerivationPath(safeName);
-    const [safeAddress, _] = await SafeService.findSafeAddress(
-      safeName,
-      this.program.programId
-    );
-    const [, safeSignerNonce] = await SafeService.findSafeSignerAddress(
-      safeAddress,
-      this.program.programId
-    );
-    const result = SafeInstructionService.createSafeIxBase(
-      payer,
-      safePath,
-      safeAddress,
-      safeSignerNonce,
-      owners,
-      approvalsRequired,
-      programIds().system
+    const safeKeypair = Keypair.generate();
+    const [, safeSignerNonce] = await this.findSafeSignerAddress(
+      safeKeypair.publicKey
     );
 
-    return { ...result, safePath };
+    const result = SafeInstructionService.createSafeIxBase(
+      payer,
+      safeKeypair.publicKey,
+      safeSignerNonce,
+      owners,
+      approvalsRequired
+    );
+
+    return { safeKeypair, ...result };
   }
 
   async createAddOwnerInstruction(
     safeAddress: PublicKey,
     safeOwner: PublicKey
   ): Promise<TransactionInstruction[]> {
-    const [safeSignerAddress] = await SafeService.findSafeSignerAddress(
-      safeAddress,
-      this.program.programId
-    );
+    const [safeSignerAddress] = await this.findSafeSignerAddress(safeAddress);
 
     const ix = await SafeInstructionService.addOwnerIx(
       this.program,
@@ -85,10 +64,7 @@ export default class SafeService {
     safeAddress: PublicKey,
     safeOwner: PublicKey
   ): Promise<TransactionInstruction[]> {
-    const [safeSignerAddress] = await SafeService.findSafeSignerAddress(
-      safeAddress,
-      this.program.programId
-    );
+    const [safeSignerAddress] = await this.findSafeSignerAddress(safeAddress);
 
     const ix = await SafeInstructionService.removeOwnerIx(
       this.program,
@@ -104,10 +80,7 @@ export default class SafeService {
     safeAddress: PublicKey,
     threshold: number
   ): Promise<TransactionInstruction[]> {
-    const [safeSignerAddress] = await SafeService.findSafeSignerAddress(
-      safeAddress,
-      this.program.programId
-    );
+    const [safeSignerAddress] = await this.findSafeSignerAddress(safeAddress);
 
     const ix = await SafeInstructionService.changeThresholdIx(
       this.program,
@@ -152,7 +125,6 @@ export default class SafeService {
     return result;
   }
 
-
   private getSafeAddressFilter(publicKey: PublicKey): GetProgramAccountsFilter {
     return {
       memcmp: {
@@ -162,30 +134,12 @@ export default class SafeService {
     };
   }
 
-  static findSafeDerivationPath(identifier: string): Buffer {
-    return HashService.sha256(identifier);
-  }
-
-  static async findSafeAddress(
-    identifier: string,
-    safeProgramId: PublicKey
+  async findSafeSignerAddress(
+    safeAddress: PublicKey
   ): Promise<[PublicKey, number]> {
-    const prefix: Buffer = HashService.sha256('Safe').slice(0, 8);
-    const derivationPath: Buffer = this.findSafeDerivationPath(identifier);
     return PublicKey.findProgramAddress(
-      [prefix, derivationPath],
-      safeProgramId
-    );
-  }
-
-  static async findSafeSignerAddress(
-    safeAddress: PublicKey,
-    safeProgramId: PublicKey
-  ): Promise<[PublicKey, number]> {
-    const prefix: Buffer = HashService.sha256('SafeSigner').slice(0, 8);
-    return PublicKey.findProgramAddress(
-      [prefix, safeAddress.toBuffer()],
-      safeProgramId
+      [utils.bytes.utf8.encode('SafeSigner'), safeAddress.toBuffer()],
+      this.program.programId
     );
   }
 }

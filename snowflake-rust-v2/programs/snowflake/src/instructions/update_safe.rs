@@ -7,17 +7,16 @@ use crate::{assert_removed_owner, assert_unique_owners};
 #[derive(Accounts)]
 pub struct AuthSafe<'info> {
     #[account(mut)]
-    pub safe: Account<'info, Safe>,
+    safe: Account<'info, Safe>,
 
     #[account(
         seeds = [
-            // b"SafeSigner",
-            &[124, 127, 208, 38, 30, 47, 232, 166],
-            safe.to_account_info().key.as_ref(),
+            b"SafeSigner".as_ref(),
+            safe.key().as_ref(),
         ],
         bump = safe.signer_nonce
     )]
-    pub safe_signer: Signer<'info>,
+    safe_signer: Signer<'info>,
 }
 
 pub fn add_owner_handler(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {

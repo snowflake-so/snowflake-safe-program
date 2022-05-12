@@ -14,10 +14,10 @@ pub struct ExecuteMultisigFlow<'info> {
 
     /// CHECK: sign only
     #[account(
-        mut, 
+        mut,
         seeds = [
-            &[124, 127, 208, 38, 30, 47, 232, 166],
-            safe.to_account_info().key.as_ref()
+            b"SafeSigner".as_ref(),
+            safe.key().as_ref()
         ],
         bump = safe.signer_nonce
     )]
@@ -56,25 +56,14 @@ pub fn handler(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
             accounts: metas,
             data: action.instruction.clone(),
         };
-
         let safe_key = safe.key();
         let seeds = &[
-            &[124, 127, 208, 38, 30, 47, 232, 166],
+            b"SafeSigner".as_ref(),
             safe_key.as_ref(),
             &[safe.signer_nonce],
         ];
-
         let signer = &[&seeds[..]];
-
         invoke_signed(&ix, ctx.remaining_accounts, signer)?;
-
-        // if result.is_err() {
-        //     flow.proposal_stage = ProposalStateType::Failed as u8;
-        // }
-
-        // if result.is_ok() {
-        //     flow.proposal_stage = ProposalStateType::Complete as u8;
-        // }
     }
 
     Ok(())
