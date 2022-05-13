@@ -40,14 +40,11 @@ pub fn handler(ctx: Context<CreateSafe>, client_safe: Safe) -> Result<()> {
 
     assert_unique_owners(&client_safe.owners)?;
 
-    let mut creator_exist = false;
-    for owner in client_safe.owners.iter() {
-        if *owner == ctx.accounts.payer.key() {
-            creator_exist = true;
-        }
-    }
-
-    require!(creator_exist, ErrorCode::CreatorIsNotAssignedToOwnerList);
+    let is_creator_exist = client_safe
+        .owners
+        .iter()
+        .any(|owner| *owner == ctx.accounts.payer.key());
+    require!(is_creator_exist, ErrorCode::CreatorIsNotAssignedToOwnerList);
 
     let now = Clock::get()?.unix_timestamp;
     safe.signer_nonce = client_safe.signer_nonce;
@@ -72,7 +69,7 @@ pub fn assert_unique_owners(owners: &[Pubkey]) -> Result<()> {
 }
 
 pub fn assert_removed_owner(owners: &[Pubkey], asserted_owner: &Pubkey) -> Result<()> {
-    for (i, owner) in owners.iter().enumerate() {
+    for (_i, owner) in owners.iter().enumerate() {
         require!(owner != asserted_owner, ErrorCode::OwnerIsNotRemoved)
     }
     Ok(())

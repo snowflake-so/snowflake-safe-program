@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::common::calculate_next_execution_time;
 use crate::state::{
-    Action, ApprovalRecord, TriggerType, DEFAULT_RETRY_WINDOW, FLOW_EXPIRY_DURATION,
+    Action, ApprovalRecord, TriggerType, DEFAULT_FLOW_EXPIRY_DURATION, DEFAULT_RETRY_WINDOW,
     RECURRING_FOREVER, TIMED_FLOW_COMPLETE, TIMED_FLOW_ERROR,
 };
 
@@ -61,7 +61,7 @@ impl Flow {
         self.expiry_date = if client_flow.expiry_date > now {
             client_flow.expiry_date
         } else {
-            now + FLOW_EXPIRY_DURATION
+            now + DEFAULT_FLOW_EXPIRY_DURATION
         };
         self.expire_on_complete = false;
         self.extra = String::from("");
@@ -85,14 +85,10 @@ impl Flow {
     }
 
     pub fn get_approvals(&self) -> u8 {
-        let mut approvals: u8 = 0;
-        for flow_approval in self.approvals.iter() {
-            if flow_approval.is_approved {
-                approvals += 1;
-            }
-        }
-
-        approvals
+        self.approvals
+            .iter()
+            .filter(|approval| approval.is_approved)
+            .count() as u8
     }
 
     pub fn validate_flow_data(&self) -> bool {

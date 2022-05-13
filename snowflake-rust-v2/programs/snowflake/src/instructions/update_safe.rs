@@ -3,6 +3,7 @@ use anchor_lang::prelude::*;
 use crate::error::ErrorCode;
 use crate::state::Safe;
 use crate::{assert_removed_owner, assert_unique_owners};
+use crate::SAFE_SIGNER_PREFIX;
 
 #[derive(Accounts)]
 pub struct AuthSafe<'info> {
@@ -11,7 +12,7 @@ pub struct AuthSafe<'info> {
 
     #[account(
         seeds = [
-            b"SafeSigner".as_ref(),
+            SAFE_SIGNER_PREFIX.as_ref(),
             safe.key().as_ref(),
         ],
         bump = safe.signer_nonce

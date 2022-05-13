@@ -2,7 +2,7 @@
 seeds = false
 
 [programs.localnet]
-snowflake = "87XDDi6JDzcqa2MtEnoBgan7BmifUhvQB5TQTGRZYuCt"
+snowflake = "HAD4YK6z3mFEYaFd82Ln2aVTUp3rt1ifXBHbFLfoot83"
 
 [registry]
 url = "https://anchor.projectserum.com"

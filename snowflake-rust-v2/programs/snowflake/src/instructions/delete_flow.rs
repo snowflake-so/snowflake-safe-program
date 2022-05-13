@@ -12,6 +12,7 @@ pub struct DeleteFlow<'info> {
         constraint =
             flow.proposal_stage != ProposalStateType::ExecutionInProgress as u8
             && flow.proposal_stage != ProposalStateType::Complete as u8
+            && flow.proposal_stage != ProposalStateType::Aborted as u8
     )]
     flow: Account<'info, Flow>,
 
