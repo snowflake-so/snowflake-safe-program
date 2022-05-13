@@ -3,7 +3,7 @@ use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program::program::invoke_signed;
 
 use crate::error::ErrorCode;
-use crate::state::{Flow, Safe};
+use crate::state::{Flow, Safe, SAFE_SIGNER_PREFIX};
 
 #[derive(Accounts)]
 pub struct ExecuteMultisigFlow<'info> {
@@ -16,7 +16,7 @@ pub struct ExecuteMultisigFlow<'info> {
     #[account(
         mut,
         seeds = [
-            b"SafeSigner".as_ref(),
+            SAFE_SIGNER_PREFIX.as_ref(),
             safe.key().as_ref()
         ],
         bump = safe.signer_nonce
@@ -58,7 +58,7 @@ pub fn handler(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
         };
         let safe_key = safe.key();
         let seeds = &[
-            b"SafeSigner".as_ref(),
+            SAFE_SIGNER_PREFIX.as_ref(),
             safe_key.as_ref(),
             &[safe.signer_nonce],
         ];
