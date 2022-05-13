@@ -19,11 +19,10 @@ pub enum FeeSource {
     FromFlow = 1,
 }
 
-pub const FLOW_EXPIRY_DURATION: i64 = 60 * 24 * 60 * 60;
+pub const SAFE_SIGNER_PREFIX: &[u8; 10] = b"SafeSigner";
+pub const DEFAULT_FLOW_EXPIRY_DURATION: i64 = 60 * 24 * 60 * 60;
 pub const RECURRING_FOREVER: i16 = -999;
 pub const DEFAULT_RETRY_WINDOW: u32 = 300;
 
 pub const TIMED_FLOW_COMPLETE: i64 = 0;
 pub const TIMED_FLOW_ERROR: i64 = -1;
-
-pub const SNF_PROGRAM_SETTINGS_KEY: &str = "APiJdtb25pQf1RCBxCoX2Q2trEjGPeXztJ2NztTQ8SYY";

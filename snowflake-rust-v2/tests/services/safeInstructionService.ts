@@ -211,7 +211,6 @@ export default class SafeInstructionService {
     };
 
     const serializableJob = this.buildNewFlowJob(clientFlow, safeAddress);
-    console.log(serializableJob);
     const createFlowIx = await program.instruction.createFlow(
       account_size,
       serializableJob,

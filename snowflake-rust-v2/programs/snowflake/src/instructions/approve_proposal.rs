@@ -17,7 +17,7 @@ pub struct ApproveProposal<'info> {
 
 pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
     let flow = &mut ctx.accounts.flow;
-    let safe = &mut ctx.accounts.safe;
+    let safe = &ctx.accounts.safe;
     let caller = &mut ctx.accounts.caller;
     let total_owners = safe.owners.len() as u8;
 
@@ -29,14 +29,13 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
         flow.approvals.len() < total_owners as usize,
         ErrorCode::ExceedLimitProposalSignatures
     );
-    let mut is_signed_by_caller = false;
-    for approval in flow.approvals.iter() {
-        if approval.owner == *caller.to_account_info().key {
-            is_signed_by_caller = true;
-        }
-    }
 
-    require!(!is_signed_by_caller, ErrorCode::AddressSignedAlready);
+    let is_new_signer = flow
+        .approvals
+        .iter()
+        .all(|approval| approval.owner != caller.key());
+    require!(is_new_signer, ErrorCode::AddressSignedAlready);
+
     let now = Clock::get()?.unix_timestamp;
     require!(now <= flow.expiry_date, ErrorCode::JobIsExpired);
 
