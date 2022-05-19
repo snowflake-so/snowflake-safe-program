@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
+use crate::assert_unique_owners;
 use crate::error::ErrorCode;
 use crate::state::Safe;
-use crate::{assert_removed_owner, assert_unique_owners};
 use crate::SAFE_SIGNER_PREFIX;
 
 #[derive(Accounts)]
@@ -29,7 +29,7 @@ pub fn add_owner_handler(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {
     require!(safe_owners.len() < 64usize, ErrorCode::InvalidMaxOwnerCount);
 
     safe.owners = safe_owners;
-    safe.owner_set_seqno += 1;
+    safe.owner_set_seqno = safe.owner_set_seqno.checked_add(1).unwrap();
 
     Ok(())
 }
@@ -39,7 +39,7 @@ pub fn remove_owner_handler(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()>
     let mut safe_owners = safe.owners.to_vec();
     safe_owners.retain(|safe_owner| *safe_owner != owner);
 
-    assert_removed_owner(&safe_owners, &owner)?;
+    require!(!safe_owners.contains(&owner), ErrorCode::OwnerIsNotRemoved);
     require!(safe_owners.len() > 0usize, ErrorCode::InvalidMinOwnerCount);
 
     if (safe_owners.len() as u8) < safe.approvals_required {
@@ -47,7 +47,7 @@ pub fn remove_owner_handler(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()>
     }
 
     safe.owners = safe_owners;
-    safe.owner_set_seqno += 1;
+    safe.owner_set_seqno = safe.owner_set_seqno.checked_add(1).unwrap();
 
     Ok(())
 }
@@ -65,7 +65,7 @@ pub fn change_threshold_handler(ctx: Context<AuthSafe>, approvals_required: u8) 
     );
 
     safe.approvals_required = approvals_required;
-    safe.owner_set_seqno += 1;
+    safe.owner_set_seqno = safe.owner_set_seqno.checked_add(1).unwrap();
 
     Ok(())
 }

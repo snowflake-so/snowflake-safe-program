@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::error::ErrorCode;
-use crate::state::Safe;
+use crate::state::{assert_unique_owners, Safe};
 
 #[derive(Accounts)]
 #[instruction(client_safe: Safe)]
@@ -40,37 +40,19 @@ pub fn handler(ctx: Context<CreateSafe>, client_safe: Safe) -> Result<()> {
 
     assert_unique_owners(&client_safe.owners)?;
 
-    let is_creator_exist = client_safe
-        .owners
-        .iter()
-        .any(|owner| *owner == ctx.accounts.payer.key());
-    require!(is_creator_exist, ErrorCode::CreatorIsNotAssignedToOwnerList);
+    require!(
+        client_safe.owners.contains(&ctx.accounts.payer.key()),
+        ErrorCode::CreatorIsNotAssignedToOwnerList
+    );
 
-    let now = Clock::get()?.unix_timestamp;
     safe.signer_nonce = client_safe.signer_nonce;
-    safe.created_at = now;
     safe.creator = ctx.accounts.payer.key();
     safe.owners = client_safe.owners;
     safe.approvals_required = client_safe.approvals_required;
     safe.owner_set_seqno = 0;
     safe.extra = client_safe.extra;
+    safe.created_at = Clock::get()?.unix_timestamp;
 
     Ok(())
 }
 
-pub fn assert_unique_owners(owners: &[Pubkey]) -> Result<()> {
-    for (i, owner) in owners.iter().enumerate() {
-        require!(
-            !owners.iter().skip(i + 1).any(|item| item == owner),
-            ErrorCode::DuplicateOwnerInSafe
-        )
-    }
-    Ok(())
-}
-
-pub fn assert_removed_owner(owners: &[Pubkey], asserted_owner: &Pubkey) -> Result<()> {
-    for (_i, owner) in owners.iter().enumerate() {
-        require!(owner != asserted_owner, ErrorCode::OwnerIsNotRemoved)
-    }
-    Ok(())
-}

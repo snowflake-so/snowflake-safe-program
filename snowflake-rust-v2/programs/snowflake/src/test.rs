@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use crate::state::approval_record::ApprovalRecord;
     use crate::state::static_config::*;
     use crate::state::Flow;
     use anchor_lang::prelude::*;
@@ -82,6 +83,25 @@ mod tests {
         assert_eq!(flow.next_execution_time, TIMED_FLOW_COMPLETE);
         assert_eq!(flow.last_scheduled_execution, now);
         assert_eq!(flow.last_updated_date, now);
+    }
+
+    #[test]
+    fn test_approvals() {
+        let mut flow = sample_recurring_timed_flow();
+        let owner_a = Pubkey::new_unique();
+
+        assert_eq!(flow.is_new_owner_approval(&owner_a), true);
+
+        let owner_b = Pubkey::new_unique();
+        let owner_c = Pubkey::new_unique();
+        flow.approvals = vec![ApprovalRecord {
+            owner: owner_b,
+            date: 1652937049,
+            is_approved: false,
+        }];
+        assert_eq!(flow.is_new_owner_approval(&owner_a), true);
+        assert_eq!(flow.is_new_owner_approval(&owner_b), false);
+        assert_eq!(flow.is_new_owner_approval(&owner_c), true);
     }
 
     fn sample_recurring_timed_flow() -> Flow {

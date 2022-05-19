@@ -91,6 +91,12 @@ impl Flow {
             .count() as u8
     }
 
+    pub fn is_new_owner_approval(&self, owner: &Pubkey) -> bool {
+        self.approvals
+            .iter()
+            .all(|approval| approval.owner != *owner)
+    }
+
     pub fn validate_flow_data(&self) -> bool {
         if self.trigger_type != TriggerType::Manual as u8
             && self.trigger_type != TriggerType::Time as u8

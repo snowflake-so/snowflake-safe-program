@@ -21,20 +21,16 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
     let caller = &mut ctx.accounts.caller;
     let total_owners = safe.owners.len() as u8;
 
-    require!(
-        safe.is_owner(caller.to_account_info().key),
-        ErrorCode::InvalidOwner
-    );
+    require!(safe.is_owner(&caller.key()), ErrorCode::InvalidOwner);
     require!(
         flow.approvals.len() < total_owners as usize,
         ErrorCode::ExceedLimitProposalSignatures
     );
 
-    let is_new_signer = flow
-        .approvals
-        .iter()
-        .all(|approval| approval.owner != caller.key());
-    require!(is_new_signer, ErrorCode::AddressSignedAlready);
+    require!(
+        flow.is_new_owner_approval(&caller.key()),
+        ErrorCode::AddressSignedAlready
+    );
 
     let now = Clock::get()?.unix_timestamp;
     require!(now <= flow.expiry_date, ErrorCode::JobIsExpired);

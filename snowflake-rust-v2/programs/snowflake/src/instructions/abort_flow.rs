@@ -18,10 +18,7 @@ pub fn handler(ctx: Context<AbortFlow>) -> Result<()> {
     let safe = &ctx.accounts.safe;
     let caller = &ctx.accounts.requested_by;
 
-    require!(
-        safe.is_owner(caller.to_account_info().key),
-        ErrorCode::InvalidOwner
-    );
+    require!(safe.is_owner(&caller.key()), ErrorCode::InvalidOwner);
 
     require!(
         flow.proposal_stage == ProposalStateType::ExecutionInProgress as u8,
