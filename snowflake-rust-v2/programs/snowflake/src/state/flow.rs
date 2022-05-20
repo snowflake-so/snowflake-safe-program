@@ -61,7 +61,7 @@ impl Flow {
         self.expiry_date = if client_flow.expiry_date > now {
             client_flow.expiry_date
         } else {
-            now + DEFAULT_FLOW_EXPIRY_DURATION
+            now.checked_add(DEFAULT_FLOW_EXPIRY_DURATION).unwrap()
         };
         self.expire_on_complete = false;
         self.extra = String::from("");

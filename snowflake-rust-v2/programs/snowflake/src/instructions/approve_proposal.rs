@@ -42,7 +42,10 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
     });
 
     let approvals = flow.get_approvals();
-    if safe.approvals_required - approvals > total_owners - flow.approvals.len() as u8 {
+    let unsigned_owners = total_owners
+        .checked_sub(flow.approvals.len() as u8)
+        .unwrap();
+    if safe.approvals_required.checked_sub(approvals).unwrap() > unsigned_owners {
         flow.proposal_stage = ProposalStateType::Rejected as u8;
     }
 
