@@ -16,7 +16,10 @@ pub fn handler(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
         flow.last_updated_date = now;
     } else {
         let flow = &mut ctx.accounts.flow;
-        if flow.trigger_type == TriggerType::Time as u8 && flow.recurring {
+        if flow.next_execution_time < now
+            && flow.trigger_type == TriggerType::Time as u8
+            && flow.recurring
+        {
             flow.update_next_execution_time(now);
         }
         flow.proposal_stage = ProposalStateType::ExecutionInProgress as u8;

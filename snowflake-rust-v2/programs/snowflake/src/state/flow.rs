@@ -57,14 +57,14 @@ impl Flow {
         self.custom_compute_budget = client_flow.custom_compute_budget;
         self.custom_fee = client_flow.custom_fee;
         self.app_id = client_flow.app_id;
-        self.schedule_end_date = 0;
+        self.schedule_end_date = client_flow.schedule_end_date;
         self.expiry_date = if client_flow.expiry_date > now {
             client_flow.expiry_date
         } else {
             now.checked_add(DEFAULT_FLOW_EXPIRY_DURATION).unwrap()
         };
         self.expire_on_complete = false;
-        self.extra = String::from("");
+        self.extra = client_flow.extra;
 
         if self.trigger_type == TriggerType::Time as u8 {
             if self.retry_window < 1 {
@@ -73,7 +73,11 @@ impl Flow {
 
             if self.recurring {
                 if self.has_remaining_runs() {
-                    self.update_next_execution_time(now);
+                    if client_flow.next_execution_time == 0 {
+                        self.update_next_execution_time(now);
+                    } else {
+                        self.next_execution_time = client_flow.next_execution_time;
+                    }
                 } else {
                     self.next_execution_time = TIMED_FLOW_COMPLETE;
                 }
