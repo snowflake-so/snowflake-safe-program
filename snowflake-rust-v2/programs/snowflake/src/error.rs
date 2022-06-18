@@ -67,4 +67,10 @@ pub enum ErrorCode {
 
     #[msg("SnowflakeSafe: Flow not enough approvals")]
     FlowNotEnoughApprovals,
+
+    #[msg("SnowflakeSafe: Mutable flow must have zero approver")]
+    MutableFlowApproverExceedsZeroSize,
+
+    #[msg("SnowflakeSafe: Mutable flow is not pending")]
+    MutableFlowIsNotPending,
 }

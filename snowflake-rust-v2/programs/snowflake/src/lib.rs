@@ -61,4 +61,8 @@ pub mod snowflake {
     pub fn mark_timed_flow_as_error(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
         instructions::execute_scheduled_multisig_flow::handler(ctx, false)
     }
+
+    pub fn add_action(ctx: Context<AddAction>, client_action: Action) -> Result<()> {
+        instructions::add_action::handler(ctx, client_action)
+    }
 }

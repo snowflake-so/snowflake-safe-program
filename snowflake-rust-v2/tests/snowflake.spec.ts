@@ -123,6 +123,8 @@ const getClusterUnixTimestamp = async () => {
   return (accountInfo.value.data as any).parsed.info.unixTimestamp;
 };
 
+// TODO add action test
+
 describe('Snowflake', () => {
   it('Test Safe Program - Happy Path', async () => {
     const owners = [
