@@ -1,9 +1,24 @@
 #[cfg(test)]
 mod tests {
+    use anchor_lang::prelude::*;
+
     use crate::state::approval_record::ApprovalRecord;
     use crate::state::static_config::*;
     use crate::state::Flow;
-    use anchor_lang::prelude::*;
+
+    #[test]
+    fn test_apply_flow_data() {
+        let now = 1644466423;
+
+        let mut flow = sample_recurring_timed_flow();
+        let client_flow = sample_recurring_timed_flow();
+        assert!(flow.apply_flow_data(client_flow, now).is_ok());
+
+        let mut flow = sample_recurring_timed_flow();
+        let mut client_flow = sample_recurring_timed_flow();
+        client_flow.cron = String::new();
+        assert!(flow.apply_flow_data(client_flow, now).is_err());
+    }
 
     #[test]
     fn test_update_schedule_for_a_recurring_timed_flow_after_a_successful_run() {

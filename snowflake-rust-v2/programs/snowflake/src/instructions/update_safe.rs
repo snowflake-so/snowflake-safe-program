@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 
-use crate::assert_unique_owners;
 use crate::error::ErrorCode;
 use crate::state::Safe;
 use crate::SAFE_SIGNER_PREFIX;
@@ -15,7 +14,7 @@ pub struct AuthSafe<'info> {
             SAFE_SIGNER_PREFIX.as_ref(),
             safe.key().as_ref(),
         ],
-        bump = safe.signer_nonce
+        bump = safe.signer_bump
     )]
     safe_signer: Signer<'info>,
 }
@@ -23,10 +22,18 @@ pub struct AuthSafe<'info> {
 pub fn add_owner_handler(ctx: Context<AuthSafe>, owner: Pubkey) -> Result<()> {
     let safe = &mut ctx.accounts.safe;
     let mut safe_owners = safe.owners.to_vec();
+
+    require!(
+        !safe_owners.contains(&owner),
+        ErrorCode::DuplicateOwnerInSafe
+    );
+
     safe_owners.push(owner);
 
-    assert_unique_owners(&safe_owners)?;
-    require!(safe_owners.len() < 64usize, ErrorCode::InvalidMaxOwnerCount);
+    require!(
+        safe_owners.len() < Safe::MAX_OWNERS.into(),
+        ErrorCode::InvalidMaxOwnerCount
+    );
 
     safe.owners = safe_owners;
     safe.owner_set_seqno = safe.owner_set_seqno.checked_add(1).unwrap();

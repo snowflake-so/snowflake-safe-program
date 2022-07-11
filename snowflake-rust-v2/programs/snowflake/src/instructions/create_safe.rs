@@ -1,13 +1,23 @@
 use anchor_lang::prelude::*;
 
 use crate::error::ErrorCode;
-use crate::state::{assert_unique_owners, Safe};
+use crate::state::{assert_unique_owners, Safe, SAFE_SIGNER_PREFIX};
 
 #[derive(Accounts)]
 #[instruction(client_safe: Safe)]
 pub struct CreateSafe<'info> {
-    #[account(init, payer = payer, space = Safe::space(Safe::MAX_OWNERS))]
+    #[account(init, payer = payer, space = Safe::space(Safe::MAX_OWNERS, client_safe.extra))]
     safe: Account<'info, Safe>,
+
+    /// CHECK: must be a valid PDA of safe
+    #[account(
+        seeds = [
+            SAFE_SIGNER_PREFIX.as_ref(),
+            safe.key().as_ref()
+        ],
+        bump = client_safe.signer_bump
+    )]
+    pub safe_signer: AccountInfo<'info>,
 
     #[account(mut)]
     payer: Signer<'info>,
@@ -24,7 +34,7 @@ pub fn handler(ctx: Context<CreateSafe>, client_safe: Safe) -> Result<()> {
     );
 
     require!(
-        client_safe.owners.len() < 64usize,
+        client_safe.owners.len() < Safe::MAX_OWNERS.into(),
         ErrorCode::InvalidMaxOwnerCount
     );
 
@@ -45,7 +55,7 @@ pub fn handler(ctx: Context<CreateSafe>, client_safe: Safe) -> Result<()> {
         ErrorCode::CreatorIsNotAssignedToOwnerList
     );
 
-    safe.signer_nonce = client_safe.signer_nonce;
+    safe.signer_bump = client_safe.signer_bump;
     safe.creator = ctx.accounts.payer.key();
     safe.owners = client_safe.owners;
     safe.approvals_required = client_safe.approvals_required;
@@ -55,4 +65,3 @@ pub fn handler(ctx: Context<CreateSafe>, client_safe: Safe) -> Result<()> {
 
     Ok(())
 }
-

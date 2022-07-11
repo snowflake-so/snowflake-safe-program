@@ -3,7 +3,6 @@ use crate::state::{ApprovalRecord, Flow, ProposalStateType, Safe};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
-#[instruction(is_approved: bool)]
 pub struct ApproveProposal<'info> {
     #[account(constraint = safe.owner_set_seqno == flow.owner_set_seqno)]
     safe: Account<'info, Safe>,

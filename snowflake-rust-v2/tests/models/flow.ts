@@ -36,7 +36,6 @@ export enum RecurringUIOption {
   Yes = 'Yes',
 }
 
-export const RUN_FOREVER = -999;
 export const RETRY_WINDOW = 900;
 
 export enum TriggerType {

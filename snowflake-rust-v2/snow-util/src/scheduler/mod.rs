@@ -8,3 +8,4 @@ mod times;
 pub use parsing::ScheduleComponents;
 pub use snow_schedule::SnowSchedule;
 pub use snow_time::SnowTime;
+pub use times::is_valid_utc_offset;

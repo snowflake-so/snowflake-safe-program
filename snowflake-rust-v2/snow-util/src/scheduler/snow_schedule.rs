@@ -296,7 +296,7 @@ mod tests {
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
 
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-12-01 00:00:00"
         );
     }
@@ -308,7 +308,7 @@ mod tests {
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
 
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2022-02-28 07:15:00"
         );
     }
@@ -320,7 +320,7 @@ mod tests {
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
 
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2024-02-29 07:15:00"
         );
     }
@@ -343,7 +343,7 @@ mod tests {
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
 
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2022-01-01 00:00:00"
         );
     }
@@ -354,7 +354,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-12-01 00:00:00"
         );
 
@@ -362,7 +362,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-12-25 00:00:00"
         );
     }
@@ -373,7 +373,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-11-30 02:55:00"
         );
 
@@ -381,7 +381,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-11-30 01:01:00"
         );
     }
@@ -392,7 +392,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-11-29 02:00:00"
         );
 
@@ -400,7 +400,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-11-29 02:15:00"
         );
     }
@@ -411,7 +411,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-11-29 01:21:00"
         );
 
@@ -419,7 +419,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40");
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-11-29 01:20:00"
         );
     }
@@ -431,7 +431,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40"); // Monday
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-11-30 00:00:00"
         );
 
@@ -440,7 +440,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40"); // Monday
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-12-04 00:00:00"
         );
 
@@ -449,7 +449,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40"); // Monday
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2021-12-06 01:00:00"
         );
 
@@ -458,7 +458,7 @@ mod tests {
         let from_ts = to_timestamp("2021-11-29 01:16:40"); // Monday
         let next_execution = cron.next_event(&SnowTime::from_time_ts(from_ts)).unwrap();
         assert_eq!(
-            to_datetime(next_execution.to_time_ts(0)),
+            to_datetime(next_execution.to_time_ts(0).unwrap()),
             "2036-02-29 08:00:00"
         );
     }

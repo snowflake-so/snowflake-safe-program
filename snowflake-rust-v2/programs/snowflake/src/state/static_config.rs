@@ -10,7 +10,7 @@ pub enum ProposalStateType {
     Rejected = 2,
     ExecutionInProgress = 3,
     Complete = 4,
-    Failed = 5,
+    Failed = 5, // Future usage
     Aborted = 6,
 }
 

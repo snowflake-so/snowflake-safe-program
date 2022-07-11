@@ -1,4 +1,5 @@
-use super::times::is_leap_year;
+use super::error::CrontabError;
+use super::{is_valid_utc_offset, times::is_leap_year};
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash)]
@@ -125,7 +126,13 @@ impl SnowTime {
         tm
     }
 
-    pub fn to_time_ts(&self, utc_offset: i64) -> i64 {
+    pub fn to_time_ts(&self, utc_offset: i32) -> Result<i64, CrontabError> {
+        if !is_valid_utc_offset(utc_offset) {
+            return Err(CrontabError::FieldOutsideRange {
+                description: format!("Invald UTC offset value"),
+            });
+        }
+
         let tm = self;
         let mut y = tm.tm_year as i64 + 1900;
         let mut m = tm.tm_mon as i64 + 1;
@@ -137,10 +144,12 @@ impl SnowTime {
         let h = tm.tm_hour as i64;
         let mi = tm.tm_min as i64;
         let s = tm.tm_sec as i64;
-        (365 * y + y / 4 - y / 100 + y / 400 + 3 * (m + 1) / 5 + 30 * m + d - 719561) * 86400
-            + 3600 * h
-            + 60 * mi
-            + s
-            + utc_offset
+        Ok(
+            (365 * y + y / 4 - y / 100 + y / 400 + 3 * (m + 1) / 5 + 30 * m + d - 719561) * 86400
+                + 3600 * h
+                + 60 * mi
+                + s
+                + utc_offset as i64,
+        )
     }
 }
