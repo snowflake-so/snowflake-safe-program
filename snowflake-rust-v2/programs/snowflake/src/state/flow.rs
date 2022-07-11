@@ -1,10 +1,12 @@
 use anchor_lang::prelude::*;
 
 use crate::common::calculate_next_execution_time;
+use crate::error::ErrorCode;
 use crate::state::{
     Action, ApprovalRecord, TriggerType, DEFAULT_FLOW_EXPIRY_DURATION, DEFAULT_RETRY_WINDOW,
     RECURRING_FOREVER, TIMED_FLOW_COMPLETE, TIMED_FLOW_ERROR,
 };
+use snow_util::scheduler::is_valid_utc_offset;
 
 #[account]
 #[derive(Debug)]
@@ -42,7 +44,18 @@ pub struct Flow {
 }
 
 impl Flow {
-    pub fn apply_flow_data(&mut self, client_flow: Flow, now: i64) {
+    pub fn apply_flow_data(&mut self, client_flow: Flow, now: i64) -> Result<()> {
+        require!(
+            is_valid_utc_offset(client_flow.user_utc_offset),
+            ErrorCode::InvalidUtcOffset
+        );
+        if client_flow.recurring {
+            require!(
+                !client_flow.cron.trim().is_empty(),
+                ErrorCode::InvalidCronPatternForScheduledFlow
+            );
+        }
+
         self.trigger_type = client_flow.trigger_type;
         self.recurring = client_flow.recurring;
         self.remaining_runs = client_flow.remaining_runs;
@@ -86,6 +99,7 @@ impl Flow {
                 self.remaining_runs = 1;
             }
         }
+        Ok(())
     }
 
     pub fn get_approvals(&self) -> u8 {
@@ -106,6 +120,10 @@ impl Flow {
             && self.trigger_type != TriggerType::Time as u8
             && self.trigger_type != TriggerType::Program as u8
         {
+            return false;
+        }
+
+        if self.remaining_runs == RECURRING_FOREVER && self.recurring == false {
             return false;
         }
 
@@ -162,6 +180,6 @@ impl Flow {
 
     pub fn update_next_execution_time(&mut self, now: i64) {
         self.next_execution_time =
-            calculate_next_execution_time(&self.cron, self.user_utc_offset as i64, now);
+            calculate_next_execution_time(&self.cron, self.user_utc_offset, now);
     }
 }

@@ -19,7 +19,7 @@ pub struct ExecuteMultisigFlow<'info> {
             SAFE_SIGNER_PREFIX.as_ref(),
             safe.key().as_ref()
         ],
-        bump = safe.signer_nonce
+        bump = safe.signer_bump
     )]
     pub safe_signer: AccountInfo<'info>,
 
@@ -60,7 +60,7 @@ pub fn handler(ctx: &Context<ExecuteMultisigFlow>) -> Result<()> {
         let seeds = &[
             SAFE_SIGNER_PREFIX.as_ref(),
             safe_key.as_ref(),
-            &[safe.signer_nonce],
+            &[safe.signer_bump],
         ];
         let signer = &[&seeds[..]];
         invoke_signed(&ix, ctx.remaining_accounts, signer)?;

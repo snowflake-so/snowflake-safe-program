@@ -29,13 +29,14 @@ export default class SafeService {
     approvalsRequired: number
   ) {
     const safeKeypair = Keypair.generate();
-    const [, safeSignerNonce] = await this.findSafeSignerAddress(
+    const [safeSigner, safeSignerNonce] = await this.findSafeSignerAddress(
       safeKeypair.publicKey
     );
 
     const result = SafeInstructionService.createSafeIxBase(
       payer,
       safeKeypair.publicKey,
+      safeSigner,
       safeSignerNonce,
       owners,
       approvalsRequired

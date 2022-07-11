@@ -67,4 +67,10 @@ pub enum ErrorCode {
 
     #[msg("SnowflakeSafe: Flow not enough approvals")]
     FlowNotEnoughApprovals,
+
+    #[msg("SnowflakeSafe: Invalid UTC offset")]
+    InvalidUtcOffset,
+
+    #[msg("SnowflakeSafe: Cron pattern cannot be empty for scheduled flow")]
+    InvalidCronPatternForScheduledFlow,
 }

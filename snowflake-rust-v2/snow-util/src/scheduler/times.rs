@@ -79,6 +79,12 @@ pub(crate) fn days_in_month(month: i32, year: i32) -> i32 {
     }
 }
 
+pub const WESTERN_MOST: i32 = -12 * 60 * 60;
+pub const EASTERN_MOST: i32 = 14 * 60 * 60;
+pub fn is_valid_utc_offset(utc_offset: i32) -> bool {
+    utc_offset >= WESTERN_MOST && utc_offset <= EASTERN_MOST
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -241,5 +247,15 @@ mod tests {
         // First day of 2021.
         assert_eq!(tm.tm_year, 121);
         assert_eq!(tm.tm_yday, 0);
+    }
+
+    #[test]
+    pub fn test_utc_offset() {
+        assert!(is_valid_utc_offset(WESTERN_MOST));
+        assert!(is_valid_utc_offset(EASTERN_MOST));
+        assert!(is_valid_utc_offset(-11 * 60 * 60));
+        assert!(is_valid_utc_offset(9 * 60 * 60));
+        assert!(!is_valid_utc_offset(WESTERN_MOST - 1));
+        assert!(!is_valid_utc_offset(EASTERN_MOST + 1));
     }
 }

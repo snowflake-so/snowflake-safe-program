@@ -4,7 +4,7 @@ use crate::error::ErrorCode;
 use crate::state::{Flow, ProposalStateType, Safe};
 
 #[derive(Accounts)]
-#[instruction(account_size : u32, client_flow: Flow)]
+#[instruction(account_size : u32)]
 pub struct CreateFlow<'info> {
     #[account(init, payer = requested_by, space = account_size as usize)]
     flow: Account<'info, Flow>,
@@ -33,7 +33,7 @@ pub fn handler(ctx: Context<CreateFlow>, _account_size: u32, client_flow: Flow) 
     let now = Clock::get()?.unix_timestamp;
     flow.created_date = now;
     flow.last_updated_date = now;
-    flow.apply_flow_data(client_flow, now);
+    flow.apply_flow_data(client_flow, now)?;
 
     require!(flow.validate_flow_data(), ErrorCode::InvalidJobData);
     Ok(())

@@ -37,10 +37,6 @@ pub fn validate_multisig_flow_before_execute(ctx: &Context<ExecuteMultisigFlow>)
 
     require!(execute_by_safe_owner, ErrorCode::InvalidOwner);
     require!(
-        flow.get_approvals() >= safe.approvals_required,
-        ErrorCode::FlowNotEnoughApprovals
-    );
-    require!(
         flow.proposal_stage == ProposalStateType::Approved as u8,
         ErrorCode::RequestIsNotApprovedYet
     );

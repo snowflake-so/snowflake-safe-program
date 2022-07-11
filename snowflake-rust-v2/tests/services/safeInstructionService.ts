@@ -16,7 +16,7 @@ export type ClientSafeParams = {
   approvalsRequired: number;
   creator: PublicKey;
   createdAt: BN;
-  signerNonce: number;
+  signerBump: number;
   extra: String;
   owners: PublicKey[];
 };
@@ -27,7 +27,7 @@ export default class SafeInstructionService {
     payerAddress: PublicKey,
     safePath: Buffer,
     safeAddress: PublicKey,
-    safeSignerNonce: number,
+    safeSignerBump: number,
     safeOwners: PublicKey[],
     approvalsRequired: number,
     systemProgram: PublicKey
@@ -44,7 +44,7 @@ export default class SafeInstructionService {
       approvalsRequired: approvalsRequired,
       creator: payerAddress,
       createdAt: new BN(0),
-      signerNonce: safeSignerNonce,
+      signerBump: safeSignerBump,
       extra: '',
       owners: safeOwners.map<PublicKey>((owner) => owner),
     };
@@ -59,7 +59,8 @@ export default class SafeInstructionService {
   static createSafeIxBase(
     payerAddress: PublicKey,
     safeAddress: PublicKey,
-    safeSignerNonce: number,
+    safeSignerAddress: PublicKey,
+    safeSignerBump: number,
     safeOwners: PublicKey[],
     approvalsRequired: number
   ) {
@@ -67,6 +68,7 @@ export default class SafeInstructionService {
       accounts: {
         payer: payerAddress,
         safe: safeAddress,
+        safeSigner: safeSignerAddress,
         systemProgram: SystemProgram.programId,
       },
       signers: [],
@@ -75,7 +77,7 @@ export default class SafeInstructionService {
       approvalsRequired: approvalsRequired,
       creator: payerAddress,
       createdAt: new BN(0),
-      signerNonce: safeSignerNonce,
+      signerBump: safeSignerBump,
       extra: '',
       owners: safeOwners.map<PublicKey>((owner) => owner),
     };

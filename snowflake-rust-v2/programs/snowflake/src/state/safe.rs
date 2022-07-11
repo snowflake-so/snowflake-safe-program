@@ -8,7 +8,7 @@ pub struct Safe {
     pub approvals_required: u8,
     pub creator: Pubkey,
     pub created_at: i64,
-    pub signer_nonce: u8,
+    pub signer_bump: u8,
     pub owner_set_seqno: u8,
     pub extra: String,
     pub owners: Vec<Pubkey>,
@@ -17,11 +17,15 @@ pub struct Safe {
 impl Safe {
     pub const MAX_OWNERS: u8 = 64;
 
-    pub fn space(max_owners: u8) -> usize {
-        8 // Anchor account discriminator
-        + std::mem::size_of::<Safe>()
-        + 4 // Vec discriminator
-        + std::mem::size_of::<Pubkey>() * (max_owners as usize)
+    pub fn space(max_owners: u8, extra_content: String) -> usize {
+        8    // Anchor account discriminator
+        + 1  // approvals_required
+        + 32 // creator
+        + 8  // created_at
+        + 1  // signer_bump
+        + 1  // owner_set_seqno
+        + 4 + extra_content.len() // extra
+        + 4 + std::mem::size_of::<Pubkey>() * (max_owners as usize) // owners
     }
 
     pub fn is_owner(&self, caller: &Pubkey) -> bool {
@@ -82,7 +86,7 @@ mod tests {
             approvals_required: 1,
             creator: Pubkey::new_unique(),
             created_at: 1652946372,
-            signer_nonce: 254,
+            signer_bump: 254,
             owner_set_seqno: 0,
             extra: "".to_string(),
             owners: vec![],

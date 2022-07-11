@@ -10,6 +10,7 @@ import { assert } from 'chai';
 import {
   Job,
   JobBuilder,
+  RECURRING_FOREVER,
   SerializableAction,
   SerializableJob,
 } from '@snowflake-so/snowflake-sdk';
@@ -133,7 +134,7 @@ describe('Snowflake', () => {
     const { safe, ctx } = await createSampleSafe(owners, 2);
     let safeAccount = await program.account.safe.fetch(ctx.accounts.safe);
 
-    assert.strictEqual(safeAccount.signerNonce, safe.signerNonce);
+    assert.strictEqual(safeAccount.signerBump, safe.signerBump);
     assert.strictEqual(safeAccount.approvalsRequired, 2);
     assert.deepEqual(safeAccount.owners, owners);
     assert.strictEqual(safeAccount.ownerSetSeqno, 0);
@@ -214,7 +215,7 @@ describe('Snowflake', () => {
       await executeBuilder.rpc();
       assert.fail();
     } catch (error) {
-      assert.strictEqual(error.error.errorCode.code, 'FlowNotEnoughApprovals');
+      assert.strictEqual(error.error.errorCode.code, 'RequestIsNotApprovedYet');
     }
 
     // Other owner approves transaction.
@@ -245,7 +246,7 @@ describe('Snowflake', () => {
     assert.strictEqual(flowAccount.proposalStage, ProposalStateType.Complete);
     assert.strictEqual(flowAccount.ownerSetSeqno, 0);
 
-    assert.strictEqual(safeAccount.signerNonce, safe.signerNonce);
+    assert.strictEqual(safeAccount.signerBump, safe.signerBump);
     assert.strictEqual(safeAccount.approvalsRequired, 2);
     assert.deepEqual(safeAccount.owners, [...owners, ownerD.publicKey]);
     assert.strictEqual(safeAccount.ownerSetSeqno, 1);
@@ -639,6 +640,87 @@ describe('Flow', () => {
     safeData = await createSampleSafe(owners, 1);
   });
 
+  describe('Create Flow', () => {
+    it('Cannot create flow with invalid trigger type', async () => {
+      const safeAddress = safeData.ctx.accounts.safe;
+      const keypair = Keypair.generate();
+      const job = new JobBuilder()
+        .jobName('Add new owner')
+        .jobInstructions([])
+        .build();
+      job.triggerType = 5;
+      const flowData = safeService.createFlow(
+        anchorProvider.wallet.publicKey,
+        safeAddress,
+        job.toSerializableJob(),
+        keypair
+      );
+
+      try {
+        await program.methods
+          .createFlow(flowData.accountSize, flowData.serializableJob)
+          .accounts(flowData.ctx.accounts)
+          .signers([keypair])
+          .rpc();
+      } catch (error) {
+        assert.strictEqual(error.error.errorCode.code, 'InvalidJobData');
+      }
+    });
+
+    it('Cannot create flow with negative value of remaining_runs', async () => {
+      const safeAddress = safeData.ctx.accounts.safe;
+      const keypair = Keypair.generate();
+      const job = new JobBuilder()
+        .jobName('Add new owner')
+        .jobInstructions([])
+        .build();
+      job.remainingRuns = -1;
+      const flowData = safeService.createFlow(
+        anchorProvider.wallet.publicKey,
+        safeAddress,
+        job.toSerializableJob(),
+        keypair
+      );
+
+      try {
+        await program.methods
+          .createFlow(flowData.accountSize, flowData.serializableJob)
+          .accounts(flowData.ctx.accounts)
+          .signers([keypair])
+          .rpc();
+      } catch (error) {
+        assert.strictEqual(error.error.errorCode.code, 'InvalidJobData');
+      }
+    });
+
+    it('Cannot create flow with invalid RECURRING_FOREVER logic', async () => {
+      const safeAddress = safeData.ctx.accounts.safe;
+      const keypair = Keypair.generate();
+      const job = new JobBuilder()
+        .jobName('Add new owner')
+        .jobInstructions([])
+        .build();
+      job.recurring = false;
+      job.remainingRuns = RECURRING_FOREVER;
+      const flowData = safeService.createFlow(
+        anchorProvider.wallet.publicKey,
+        safeAddress,
+        job.toSerializableJob(),
+        keypair
+      );
+
+      try {
+        await program.methods
+          .createFlow(flowData.accountSize, flowData.serializableJob)
+          .accounts(flowData.ctx.accounts)
+          .signers([keypair])
+          .rpc();
+      } catch (error) {
+        assert.strictEqual(error.error.errorCode.code, 'InvalidJobData');
+      }
+    });
+  });
+
   describe('Approve Flow', () => {
     it('Can reject a flow', async () => {
       const sampleFlowData = await createSampleFlow(
@@ -1013,7 +1095,7 @@ describe('Flow', () => {
       } catch (error) {
         assert.strictEqual(
           error.error.errorCode.code,
-          'FlowNotEnoughApprovals'
+          'RequestIsNotApprovedYet'
         );
       }
     });
