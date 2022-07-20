@@ -73,4 +73,7 @@ pub enum ErrorCode {
 
     #[msg("SnowflakeSafe: Cron pattern cannot be empty for scheduled flow")]
     InvalidCronPatternForScheduledFlow,
+
+    #[msg("SnowflakeSafe: Remaining run must be between 0 and 1000")]
+    InvalidRemainingRuns,
 }

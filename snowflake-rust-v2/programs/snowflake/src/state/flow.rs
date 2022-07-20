@@ -3,8 +3,9 @@ use anchor_lang::prelude::*;
 use crate::common::calculate_next_execution_time;
 use crate::error::ErrorCode;
 use crate::state::{
-    Action, ApprovalRecord, TriggerType, DEFAULT_FLOW_EXPIRY_DURATION, DEFAULT_RETRY_WINDOW,
-    RECURRING_FOREVER, TIMED_FLOW_COMPLETE, TIMED_FLOW_ERROR,
+    Action, ApprovalRecord, TriggerType, DEFAULT_FLOW_EXPIRY_DURATION,
+    MAXIMUM_REMAINING_RUNS_FOR_PROGRAM_TRIGGER, DEFAULT_RETRY_WINDOW, RECURRING_FOREVER,
+    TIMED_FLOW_COMPLETE, TIMED_FLOW_ERROR,
 };
 use snow_util::scheduler::is_valid_utc_offset;
 
@@ -98,6 +99,12 @@ impl Flow {
                 self.next_execution_time = client_flow.next_execution_time;
                 self.remaining_runs = 1;
             }
+        } else if self.trigger_type == TriggerType::Program as u8 {
+            require!(
+                client_flow.remaining_runs >= 0
+                    && client_flow.remaining_runs <= MAXIMUM_REMAINING_RUNS_FOR_PROGRAM_TRIGGER,
+                ErrorCode::InvalidRemainingRuns
+            );
         }
         Ok(())
     }

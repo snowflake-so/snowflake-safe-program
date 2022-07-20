@@ -21,6 +21,7 @@ pub enum FeeSource {
 
 pub const SAFE_SIGNER_PREFIX: &[u8; 10] = b"SafeSigner";
 pub const DEFAULT_FLOW_EXPIRY_DURATION: i64 = 60 * 24 * 60 * 60;
+pub const MAXIMUM_REMAINING_RUNS_FOR_PROGRAM_TRIGGER: i16 = 1000;
 pub const RECURRING_FOREVER: i16 = -999;
 pub const DEFAULT_RETRY_WINDOW: u32 = 300;
 

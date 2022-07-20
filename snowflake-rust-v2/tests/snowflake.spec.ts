@@ -719,6 +719,90 @@ describe('Flow', () => {
         assert.strictEqual(error.error.errorCode.code, 'InvalidJobData');
       }
     });
+
+    it('Create program condition flow', async () => {
+      const safeAddress = safeData.ctx.accounts.safe;
+      const keypair = Keypair.generate();
+      const job = new JobBuilder()
+        .jobName('Add new owner')
+        .jobInstructions([])
+        .build();
+      job.triggerType = TriggerType.ProgramCondition;
+      job.remainingRuns = 999;
+      const flowData = safeService.createFlow(
+        anchorProvider.wallet.publicKey,
+        safeAddress,
+        job.toSerializableJob(),
+        keypair
+      );
+
+      await program.methods
+        .createFlow(flowData.accountSize, flowData.serializableJob)
+        .accounts(flowData.ctx.accounts)
+        .signers([keypair])
+        .rpc();
+
+      const flowAccount = await program.account.flow.fetch(
+        flowData.ctx.accounts.flow
+      );
+      assert.strictEqual(flowAccount.triggerType, TriggerType.ProgramCondition);
+      assert.strictEqual(flowAccount.remainingRuns, 999);
+    });
+
+    it('Create program condition flow with remainingRuns larger than maximum value', async () => {
+      const safeAddress = safeData.ctx.accounts.safe;
+      const keypair = Keypair.generate();
+      const job = new JobBuilder()
+        .jobName('Add new owner')
+        .jobInstructions([])
+        .build();
+      job.triggerType = TriggerType.ProgramCondition;
+      job.remainingRuns = 31000;
+      const flowData = safeService.createFlow(
+        anchorProvider.wallet.publicKey,
+        safeAddress,
+        job.toSerializableJob(),
+        keypair
+      );
+
+      try {
+        await program.methods
+          .createFlow(flowData.accountSize, flowData.serializableJob)
+          .accounts(flowData.ctx.accounts)
+          .signers([keypair])
+          .rpc();
+      } catch (error) {
+        assert.strictEqual(error.error.errorCode.code, 'InvalidRemainingRuns');
+      }
+    });
+
+    it('Create program condition flow with RECURRING_FOREVER', async () => {
+      const safeAddress = safeData.ctx.accounts.safe;
+      const keypair = Keypair.generate();
+      const job = new JobBuilder()
+        .jobName('Add new owner')
+        .jobInstructions([])
+        .build();
+      job.triggerType = TriggerType.ProgramCondition;
+      job.recurring = true;
+      job.remainingRuns = RECURRING_FOREVER;
+      const flowData = safeService.createFlow(
+        anchorProvider.wallet.publicKey,
+        safeAddress,
+        job.toSerializableJob(),
+        keypair
+      );
+
+      try {
+        await program.methods
+          .createFlow(flowData.accountSize, flowData.serializableJob)
+          .accounts(flowData.ctx.accounts)
+          .signers([keypair])
+          .rpc();
+      } catch (error) {
+        assert.strictEqual(error.error.errorCode.code, 'InvalidRemainingRuns');
+      }
+    });
   });
 
   describe('Approve Flow', () => {
