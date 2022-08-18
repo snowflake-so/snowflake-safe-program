@@ -18,8 +18,9 @@ pub mod snowflake {
         ctx: Context<CreateFlow>,
         account_size: u32,
         client_flow: Flow,
+        is_draft: bool,
     ) -> Result<()> {
-        instructions::create_flow::handler(ctx, account_size, client_flow)
+        instructions::create_flow::handler(ctx, account_size, client_flow, is_draft)
     }
 
     pub fn delete_flow(_ctx: Context<DeleteFlow>) -> Result<()> {
@@ -60,5 +61,13 @@ pub mod snowflake {
 
     pub fn mark_timed_flow_as_error(ctx: Context<ExecuteMultisigFlow>) -> Result<()> {
         instructions::execute_scheduled_multisig_flow::handler(ctx, false)
+    }
+
+    pub fn add_action(
+        ctx: Context<AddAction>,
+        client_action: Action,
+        finish_draft: bool,
+    ) -> Result<()> {
+        instructions::add_action::handler(ctx, client_action, finish_draft)
     }
 }

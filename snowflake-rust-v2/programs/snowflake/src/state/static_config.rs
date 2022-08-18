@@ -5,6 +5,7 @@ pub enum TriggerType {
 }
 
 pub enum ProposalStateType {
+    Draft = 222,
     Pending = 0,
     Approved = 1,
     Rejected = 2,

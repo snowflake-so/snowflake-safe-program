@@ -17,7 +17,7 @@ export type ClientSafeParams = {
   creator: PublicKey;
   createdAt: BN;
   signerBump: number;
-  extra: String;
+  extra: string;
   owners: PublicKey[];
 };
 
@@ -27,12 +27,12 @@ export default class SafeInstructionService {
     payerAddress: PublicKey,
     safePath: Buffer,
     safeAddress: PublicKey,
-    safeSignerBump: number,
+    safeSignerNonce: number,
     safeOwners: PublicKey[],
     approvalsRequired: number,
     systemProgram: PublicKey
   ): Promise<TransactionInstruction> {
-    let ctx: any = {
+    const ctx: any = {
       accounts: {
         payer: payerAddress,
         safe: safeAddress,
@@ -40,19 +40,15 @@ export default class SafeInstructionService {
       },
       signers: [],
     };
-    let safe: ClientSafeParams = {
+    const safe: ClientSafeParams = {
       approvalsRequired: approvalsRequired,
       creator: payerAddress,
       createdAt: new BN(0),
-      signerBump: safeSignerBump,
+      signerBump: safeSignerNonce,
       extra: '',
-      owners: safeOwners.map<PublicKey>((owner) => owner),
+      owners: safeOwners.map<PublicKey>(owner => owner),
     };
-    const createSafeIx = await program.instruction.createSafe(
-      safePath,
-      safe,
-      ctx
-    );
+    const createSafeIx = await program.instruction.createSafe(safePath, safe, ctx);
     return createSafeIx;
   }
 
@@ -60,11 +56,11 @@ export default class SafeInstructionService {
     payerAddress: PublicKey,
     safeAddress: PublicKey,
     safeSignerAddress: PublicKey,
-    safeSignerBump: number,
+    safeSignerNonce: number,
     safeOwners: PublicKey[],
     approvalsRequired: number
   ) {
-    let ctx = {
+    const ctx = {
       accounts: {
         payer: payerAddress,
         safe: safeAddress,
@@ -73,13 +69,13 @@ export default class SafeInstructionService {
       },
       signers: [],
     };
-    let safe: ClientSafeParams = {
+    const safe: ClientSafeParams = {
       approvalsRequired: approvalsRequired,
       creator: payerAddress,
       createdAt: new BN(0),
-      signerBump: safeSignerBump,
+      signerBump: safeSignerNonce,
       extra: '',
-      owners: safeOwners.map<PublicKey>((owner) => owner),
+      owners: safeOwners.map<PublicKey>(owner => owner),
     };
 
     return { safe, ctx };
@@ -92,18 +88,14 @@ export default class SafeInstructionService {
     safeOwners: PublicKey[],
     approvalsRequired: number
   ): Promise<TransactionInstruction> {
-    let ctx: InstructionContextType<'safe' | 'caller'> = {
+    const ctx: InstructionContextType<'safe' | 'caller'> = {
       accounts: {
         safe: safeAddress,
         caller: payerAddress,
       },
       signers: [],
     };
-    const updateSafeIx = await program.instruction.updateSafe(
-      safeOwners,
-      approvalsRequired,
-      ctx
-    );
+    const updateSafeIx = await program.instruction.updateSafe(safeOwners, approvalsRequired, ctx);
     return updateSafeIx;
   }
 
@@ -113,7 +105,7 @@ export default class SafeInstructionService {
     safeAddress: PublicKey,
     safeOwner: PublicKey
   ): Promise<TransactionInstruction> {
-    let ctx: InstructionContextType<'safe' | 'safeSigner'> = {
+    const ctx: InstructionContextType<'safe' | 'safeSigner'> = {
       accounts: {
         safe: safeAddress,
         safeSigner: safeSignerAddress,
@@ -132,7 +124,7 @@ export default class SafeInstructionService {
     safeAddress: PublicKey,
     safeOwner: PublicKey
   ): Promise<TransactionInstruction> {
-    let ctx: InstructionContextType<'safe' | 'safeSigner'> = {
+    const ctx: InstructionContextType<'safe' | 'safeSigner'> = {
       accounts: {
         safe: safeAddress,
         safeSigner: safeSignerAddress,
@@ -151,7 +143,7 @@ export default class SafeInstructionService {
     safeAddress: PublicKey,
     threshold: number
   ): Promise<TransactionInstruction> {
-    let ctx: InstructionContextType<'safe' | 'safeSigner'> = {
+    const ctx: InstructionContextType<'safe' | 'safeSigner'> = {
       accounts: {
         safe: safeAddress,
         safeSigner: safeSignerAddress,
@@ -160,7 +152,7 @@ export default class SafeInstructionService {
     };
 
     const ix = await program.instruction.changeThreshold(threshold, ctx);
-    let safeSigner = ix.keys.find((key: any) => {
+    const safeSigner = ix.keys.find((key: any) => {
       return key.pubkey.equals(safeSignerAddress);
     });
     safeSigner.isSigner = false;
@@ -171,10 +163,7 @@ export default class SafeInstructionService {
   static buildNewFlowJob(clientFlow: Flow, safeAddress: PublicKey) {
     const jobBuilder = new JobBuilder().jobName(clientFlow.name);
     if (clientFlow.recurring && clientFlow.triggerType === TriggerType.Time) {
-      jobBuilder.scheduleCron(
-        (clientFlow as any).cron,
-        clientFlow.remainingRuns
-      );
+      jobBuilder.scheduleCron((clientFlow as any).cron, clientFlow.remainingRuns);
     }
     if (clientFlow.triggerType === TriggerType.ProgramCondition) {
       jobBuilder.scheduleConditional(clientFlow.remainingRuns);
@@ -200,9 +189,7 @@ export default class SafeInstructionService {
     newFlowKeypair: Keypair,
     systemProgram: PublicKey
   ): Promise<TransactionInstruction> {
-    let ctx: InstructionContextType<
-      'flow' | 'safe' | 'requestedBy' | 'systemProgram'
-    > = {
+    const ctx: InstructionContextType<'flow' | 'safe' | 'requestedBy' | 'systemProgram'> = {
       accounts: {
         flow: newFlowKeypair.publicKey,
         safe: safeAddress,
@@ -213,11 +200,7 @@ export default class SafeInstructionService {
     };
 
     const serializableJob = this.buildNewFlowJob(clientFlow, safeAddress);
-    const createFlowIx = await program.instruction.createFlow(
-      account_size,
-      serializableJob,
-      ctx
-    );
+    const createFlowIx = await program.instruction.createFlow(account_size, serializableJob, ctx);
     return createFlowIx;
   }
 
@@ -229,9 +212,7 @@ export default class SafeInstructionService {
     newFlowKeypair: Keypair,
     systemProgram: PublicKey
   ) {
-    let ctx: InstructionContextType<
-      'flow' | 'safe' | 'requestedBy' | 'systemProgram'
-    > = {
+    const ctx: InstructionContextType<'flow' | 'safe' | 'requestedBy' | 'systemProgram'> = {
       accounts: {
         flow: newFlowKeypair.publicKey,
         safe: safeAddress,
@@ -245,12 +226,8 @@ export default class SafeInstructionService {
     return { accountSize: account_size, serializableJob, ctx };
   }
 
-  static abortFlowIxBase(
-    flowAddress: PublicKey,
-    safeAddress: PublicKey,
-    callerAddress: PublicKey
-  ) {
-    let ctx: InstructionContextType<'flow' | 'safe' | 'requestedBy'> = {
+  static abortFlowIxBase(flowAddress: PublicKey, safeAddress: PublicKey, callerAddress: PublicKey) {
+    const ctx: InstructionContextType<'flow' | 'safe' | 'requestedBy'> = {
       accounts: {
         flow: flowAddress,
         safe: safeAddress,
@@ -258,46 +235,16 @@ export default class SafeInstructionService {
       },
     };
 
-    // const abortFlowIx = await program.instruction.abortFlow(ctx);
     return { ctx };
   }
 
-  // static createFlowIxBaseOld(
-  //   requestedByAddress: PublicKey,
-  //   account_size: number,
-  //   clientFlow: Flow,
-  //   safeAddress: PublicKey,
-  //   newFlowKeypair: Keypair,
-  //   systemProgram: PublicKey
-  // ) {
-  //   let ctx: InstructionContextType<'flow' | 'safe' | 'requestedBy' | 'systemProgram'> = {
-  //     accounts: {
-  //       flow: newFlowKeypair.publicKey,
-  //       safe: safeAddress,
-  //       requestedBy: requestedByAddress,
-  //       systemProgram,
-  //     },
-  //     signers: [newFlowKeypair],
-  //   };
-
-  //   const job = new JobBuilder().jobName(clientFlow.name).build();
-  //   job.triggerType = clientFlow.triggerType;
-  //   const serializableJob = job.toSerializableJob();
-  //   // TODO Remove this when we Snowflake SDK supports the new flow format
-  //   serializableJob.actions = clientFlow.actions;
-  //   serializableJob.approvals = [];
-  //   serializableJob.safe = safeAddress;
-  //   serializableJob.proposalState = 0;
-
-  //   return { accountSize: account_size, serializableJob, ctx };
-  // }
 
   static async deleteFlowIx(
     program: Program,
     ownerAddress: PublicKey,
     flowAddress: PublicKey
   ): Promise<TransactionInstruction> {
-    let ctx: InstructionContextType<'flow' | 'requestedBy'> = {
+    const ctx: InstructionContextType<'flow' | 'requestedBy'> = {
       accounts: {
         flow: flowAddress,
         requestedBy: ownerAddress,
@@ -310,16 +257,13 @@ export default class SafeInstructionService {
   }
 
   static deleteFlowIxBase(ownerAddress: PublicKey, flowAddress: PublicKey) {
-    let ctx: InstructionContextType<'flow' | 'requestedBy'> = {
+    const ctx: InstructionContextType<'flow' | 'requestedBy'> = {
       accounts: {
         flow: flowAddress,
         requestedBy: ownerAddress,
       },
       signers: [],
     };
-
-    // const createFlowIx = await program.instruction.deleteFlow(ctx);
-    // return createFlowIx;
 
     return { ctx };
   }
@@ -331,7 +275,7 @@ export default class SafeInstructionService {
     payerAddress: PublicKey,
     isApproved: boolean
   ) {
-    let ctx: InstructionContextType<'safe' | 'flow' | 'caller'> = {
+    const ctx: InstructionContextType<'safe' | 'flow' | 'caller'> = {
       accounts: {
         safe: safeAddress,
         flow: flowAddress,
@@ -340,10 +284,7 @@ export default class SafeInstructionService {
       signers: [],
     };
 
-    const approveProposalIx = await program.instruction.approveProposal(
-      isApproved,
-      ctx
-    );
+    const approveProposalIx = await program.instruction.approveProposal(isApproved, ctx);
     return approveProposalIx;
   }
 
@@ -353,7 +294,7 @@ export default class SafeInstructionService {
     payerAddress: PublicKey,
     isApproved: boolean
   ) {
-    let ctx: InstructionContextType<'safe' | 'flow' | 'caller'> = {
+    const ctx: InstructionContextType<'safe' | 'flow' | 'caller'> = {
       accounts: {
         safe: safeAddress,
         flow: flowAddress,
@@ -372,24 +313,19 @@ export default class SafeInstructionService {
     ownerAddress: PublicKey,
     flowActions: any
   ) {
-    let remainingAccountMetas: AccountMeta[] = flowActions.reduce(
-      (result, current) => {
-        const currentAccounts = current.accounts.map((account) => {
-          return { ...account, isSigner: false };
-        });
-        result = result.concat(currentAccounts, {
-          pubkey: current.program,
-          isSigner: false,
-          isWritable: false,
-        });
+    const remainingAccountMetas: AccountMeta[] = flowActions.reduce((result, current) => {
+      const currentAccounts = current.accounts.map(account => {
+        return { ...account, isSigner: false };
+      });
+      result = result.concat(currentAccounts, {
+        pubkey: current.program,
+        isSigner: false,
+        isWritable: false,
+      });
 
-        return result;
-      },
-      []
-    );
-    let ctx: InstructionContextType<
-      'flow' | 'safe' | 'safeSigner' | 'caller' | 'systemProgram'
-    > = {
+      return result;
+    }, []);
+    const ctx: InstructionContextType<'flow' | 'safe' | 'safeSigner' | 'caller' | 'systemProgram'> = {
       accounts: {
         flow: flowAddress,
         safe: safeAddress,
@@ -399,9 +335,6 @@ export default class SafeInstructionService {
       },
       remainingAccounts: remainingAccountMetas,
     };
-
-    // const executeMultisigFlowIx = await program.instruction.executeMultisigFlow(ctx);
-    // return executeMultisigFlowIx;
 
     return { ctx };
   }
