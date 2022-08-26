@@ -67,7 +67,7 @@ fn parse_field(field: &str, field_min: u32, field_max: u32) -> Result<Vec<u32>, 
     for part in field.split(",") {
         let mut min = field_min;
         let mut max = field_max;
-        let mut step = 1;
+        let mut step: usize = 1;
 
         // stepped, eg. */2 or 1-45/3
         let stepped: Vec<&str> = part.splitn(2, "/").collect();
@@ -76,7 +76,7 @@ fn parse_field(field: &str, field_min: u32, field_max: u32) -> Result<Vec<u32>, 
         let range: Vec<&str> = stepped[0].splitn(2, "-").collect();
 
         if stepped.len() == 2 {
-            step = stepped[1].parse::<u32>()?;
+            step = stepped[1].parse::<usize>()?;
         }
 
         if range.len() == 2 {
@@ -101,9 +101,7 @@ fn parse_field(field: &str, field_min: u32, field_max: u32) -> Result<Vec<u32>, 
             });
         }
 
-        let values = (min..max + 1)
-            .filter(|i| i % step == 0)
-            .collect::<Vec<u32>>();
+        let values = (min..max + 1).step_by(step).collect::<Vec<u32>>();
 
         components.extend(values);
     }
@@ -153,18 +151,29 @@ mod tests {
 
     #[test]
     fn test_valid_range() {
-        let every_min_schedule = parse_cron("40-59 9,18 25-31 4-8 1-6/2").unwrap();
+        let test_schedule = parse_cron("40-59 9,18 25-31 4-8 1-5/2").unwrap();
         let minutes: Vec<u32> = (40..=59).collect();
         let hours: Vec<u32> = vec![9, 18];
         let days: Vec<u32> = (25..=31).collect();
         let months: Vec<u32> = (4..=8).collect();
-        let weekdays: Vec<u32> = vec![2, 4, 6];
+        let weekdays: Vec<u32> = vec![1, 3, 5];
 
-        assert!(every_min_schedule.months == months);
-        assert!(every_min_schedule.days == days);
-        assert!(every_min_schedule.hours == hours);
-        assert!(every_min_schedule.minutes == minutes);
-        assert!(every_min_schedule.weekdays == weekdays);
+        assert!(test_schedule.months == months);
+        assert!(test_schedule.days == days);
+        assert!(test_schedule.hours == hours);
+        assert!(test_schedule.minutes == minutes);
+        assert!(test_schedule.weekdays == weekdays);
+    }
+
+    #[test]
+    fn test_valid_steps() {
+        let test_schedule = parse_cron("40-59/4 3-18/5 1-31/4 4-8/3 1-5/2").unwrap();
+
+        assert!(test_schedule.minutes == vec![40, 44, 48, 52, 56]);
+        assert!(test_schedule.hours == vec![3, 8, 13, 18]);
+        assert!(test_schedule.days == vec![1, 5, 9, 13, 17, 21, 25, 29]);
+        assert!(test_schedule.months == vec![4, 7]);
+        assert!(test_schedule.weekdays == vec![1, 3, 5]);
     }
 
     #[test]

@@ -119,6 +119,24 @@ mod tests {
         assert_eq!(flow.is_new_owner_approval(&owner_c), true);
     }
 
+    #[test]
+    fn test_calculate_next_execution_time() {
+        let mut flow = sample_recurring_timed_flow();
+        flow.remaining_runs = 100;
+        flow.user_utc_offset = -36000;
+        let now = 1661400000;
+
+        flow.cron = String::from("0 15 * * 1-5/2");
+        flow.next_execution_time = 0;
+        flow.update_next_execution_time(now);
+        assert_eq!(flow.next_execution_time, 1661490000);
+
+        flow.cron = String::from("0 15 * * 2-6/2");
+        flow.next_execution_time = 0;
+        flow.update_next_execution_time(now);
+        assert_eq!(flow.next_execution_time, 1661403600);
+    }
+
     fn sample_recurring_timed_flow() -> Flow {
         Flow {
             requested_by: Pubkey::new_unique(),
