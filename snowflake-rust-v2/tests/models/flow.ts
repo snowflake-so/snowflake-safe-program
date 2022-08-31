@@ -36,6 +36,7 @@ export enum RecurringUIOption {
   Yes = 'Yes',
 }
 
+export const RUN_FOREVER = -999;
 export const RETRY_WINDOW = 900;
 
 export enum TriggerType {
@@ -51,6 +52,7 @@ export enum TransactionType {
 }
 
 export enum ProposalStateType {
+  Draft = 222,
   Pending = 0,
   Approved = 1,
   Rejected = 2,

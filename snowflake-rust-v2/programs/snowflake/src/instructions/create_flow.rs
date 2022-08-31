@@ -18,7 +18,12 @@ pub struct CreateFlow<'info> {
     system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateFlow>, _account_size: u32, client_flow: Flow) -> Result<()> {
+pub fn handler(
+    ctx: Context<CreateFlow>,
+    _account_size: u32,
+    client_flow: Flow,
+    is_draft: bool,
+) -> Result<()> {
     let flow = &mut ctx.accounts.flow;
     let owner = &ctx.accounts.requested_by;
     flow.requested_by = ctx.accounts.requested_by.key();
@@ -27,7 +32,11 @@ pub fn handler(ctx: Context<CreateFlow>, _account_size: u32, client_flow: Flow) 
     require!(safe.is_owner(&owner.key()), ErrorCode::InvalidOwner);
     flow.safe = safe.key();
     flow.approvals = Vec::new();
-    flow.proposal_stage = ProposalStateType::Pending as u8;
+    flow.proposal_stage = if is_draft {
+        ProposalStateType::Draft as u8
+    } else {
+        ProposalStateType::Pending as u8
+    };
     flow.owner_set_seqno = safe.owner_set_seqno;
 
     let now = Clock::get()?.unix_timestamp;

@@ -1,0 +1,11 @@
+**/dist
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+**/build
+**/target
+**/{js, jsx}
+
+# Anchor
+**/migrations/*

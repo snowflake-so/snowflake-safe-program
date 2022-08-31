@@ -31,6 +31,11 @@ pub fn handler(ctx: Context<ApproveProposal>, is_approved: bool) -> Result<()> {
         ErrorCode::AddressSignedAlready
     );
 
+    require!(
+        flow.proposal_stage == ProposalStateType::Pending as u8,
+        ErrorCode::FlowIsNotReadyYet
+    );
+
     let now = Clock::get()?.unix_timestamp;
     require!(now <= flow.expiry_date, ErrorCode::JobIsExpired);
 

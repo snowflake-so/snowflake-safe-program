@@ -7,11 +7,13 @@ import {
 } from '@solana/web3.js';
 import BufferLayout from 'buffer-layout';
 import BN from 'bn.js';
-import { Snowflake } from '../../target/types/snowflake';
+import { SerializableAction } from '@snowflake-so/snowflake-sdk';
 
+import { Snowflake } from '../../target/types/snowflake';
 import { Flow } from '../models/flow';
 import SafeInstructionService from './safeInstructionService';
 import { programIds } from '../utils/ids';
+import { InstructionContextType } from '../models/anchor-context';
 
 export const FLOW_ACCOUNT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(8, 'discriminator'),
@@ -23,15 +25,9 @@ export const DEFAULT_FLOW_SIZE = 1800;
 
 export default class SafeService {
   constructor(readonly program: Program<Snowflake>) {}
-  async createSafe(
-    payer: PublicKey,
-    owners: PublicKey[],
-    approvalsRequired: number
-  ) {
+  async createSafe(payer: PublicKey, owners: PublicKey[], approvalsRequired: number) {
     const safeKeypair = Keypair.generate();
-    const [safeSigner, safeSignerNonce] = await this.findSafeSignerAddress(
-      safeKeypair.publicKey
-    );
+    const [safeSigner, safeSignerNonce] = await this.findSafeSignerAddress(safeKeypair.publicKey);
 
     const result = SafeInstructionService.createSafeIxBase(
       payer,
@@ -43,6 +39,25 @@ export default class SafeService {
     );
 
     return { safeKeypair, ...result };
+  }
+
+  createAddAction(
+    flow: PublicKey,
+    requestedBy: PublicKey,
+    ix: TransactionInstruction,
+    finishDraft: boolean
+  ) {
+    const ctx: InstructionContextType<'flow' | 'requestedBy'> = {
+      accounts: {
+        flow: flow,
+        requestedBy: requestedBy,
+      },
+      signers: [],
+    };
+    const builder = this.program.methods
+      .addAction(SerializableAction.fromInstruction(ix), finishDraft)
+      .accounts(ctx.accounts);
+    return { ctx, builder };
   }
 
   async createAddOwnerInstruction(
@@ -123,7 +138,11 @@ export default class SafeService {
       isApproved
     );
 
-    return result;
+    const builder = this.program.methods
+      .approveProposal(result.isApproved)
+      .accounts(result.ctx.accounts);
+
+    return { ...result, builder };
   }
 
   private getSafeAddressFilter(publicKey: PublicKey): GetProgramAccountsFilter {
@@ -135,9 +154,7 @@ export default class SafeService {
     };
   }
 
-  async findSafeSignerAddress(
-    safeAddress: PublicKey
-  ): Promise<[PublicKey, number]> {
+  async findSafeSignerAddress(safeAddress: PublicKey): Promise<[PublicKey, number]> {
     return PublicKey.findProgramAddress(
       [utils.bytes.utf8.encode('SafeSigner'), safeAddress.toBuffer()],
       this.program.programId
