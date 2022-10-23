@@ -17,7 +17,7 @@ export const PROGRAM_IDS = [
 ];
 
 export const setProgramIds = (envName: string) => {
-  let instance = PROGRAM_IDS.find(env => env.name === envName);
+  const instance = PROGRAM_IDS.find(env => env.name === envName);
   if (!instance) {
     return;
   }

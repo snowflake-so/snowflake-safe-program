@@ -68,6 +68,15 @@ pub enum ErrorCode {
     #[msg("SnowflakeSafe: Flow not enough approvals")]
     FlowNotEnoughApprovals,
 
+    #[msg("SnowflakeSafe: Flow must have zero approver before update")]
+    FlowMustHaveZeroApproverBeforeUpdate,
+
+    #[msg("SnowflakeSafe: Flow must be in drafted before update")]
+    FlowMustBeInDraftedBeforeUpdate,
+
+    #[msg("SnowflakeSafe: Flow is not ready yet")]
+    FlowIsNotReadyYet,
+
     #[msg("SnowflakeSafe: Invalid UTC offset")]
     InvalidUtcOffset,
 

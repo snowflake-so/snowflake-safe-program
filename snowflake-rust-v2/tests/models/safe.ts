@@ -15,7 +15,7 @@ export interface SafeUIType {
 export type SafeType = {
   safePath: Buffer;
   safeNonce: number;
-  safeSignerBump: number;
+  safeSignerNonce: number;
   owners: PublicKey[];
   approvalsRequired: number;
   ownerSetSeqno: number;

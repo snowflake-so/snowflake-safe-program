@@ -6,7 +6,7 @@ import { ProposalStateType } from './flow';
 export type SafeTransaction = Job & {
   requestedBy: PublicKey;
   name: string;
-  actions: SnowflakeTemplateAction<{}>[];
+  actions: SnowflakeTemplateAction<Record<string, unknown>>[];
   safe: PublicKey;
   proposalStage: ProposalStateType;
   approvals: ApprovalRecord[];
