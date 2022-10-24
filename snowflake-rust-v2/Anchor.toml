@@ -1,20 +1,25 @@
+anchor_version="0.24.2"
+
 [features]
 seeds = false
 
-[programs.mainnet]
-snowflake = "HAD4YK6z3mFEYaFd82Ln2aVTUp3rt1ifXBHbFLfoot83"
-
-[programs.devnet]
-snowflake = "HAD4YK6z3mFEYaFd82Ln2aVTUp3rt1ifXBHbFLfoot83"
+[workspace]
+members = [
+  "programs/snowflake",
+  "snow-util"
+]
 
 [programs.localnet]
+snowflake = "HAD4YK6z3mFEYaFd82Ln2aVTUp3rt1ifXBHbFLfoot83"
+
+[programs.mainnet]
 snowflake = "HAD4YK6z3mFEYaFd82Ln2aVTUp3rt1ifXBHbFLfoot83"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "mainnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
